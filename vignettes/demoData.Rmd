@@ -1,0 +1,268 @@
+---
+title: "Creating demo datasets"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{5. Create demo datasets}
+  %\VignetteEngine{knitr::rmarkdown}
+  %VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE,
+                      cache = FALSE, dpi = 100)
+library(BiocStyle)
+```
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data, 
+particularly single-cell dataset. It evolved from a collection of helper functions that were 
+used in our in-house scRNA-seq processing workflow.
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+
+This vignette (#5) will show how the demo datasets in this package were created. The codes were not 
+evaluated to minimise the time needed to build the vignette.
+
+# Create `phases_assignments` from `cyclone` results
+
+A mock reference (`ref`) with 1000 cells and the expression of 2000 genes was created using 
+`mockSCE()` from the `r Biocpkg("scuttle")` package, and its gene expression data was used to 
+train a classifier for cell cycle phase using `sandbag()` from the `r Biocpkg("scran")` package. 
+
+A second mock object (`phases`) with 200 cells was created and the cells were classified into 
+their cell cycle phases using `cyclone()` from the `r Biocpkg("scran")` package. The results were 
+saved as a RData file.
+
+```{r build_phases, eval = FALSE}
+library(scuttle)
+library(scran)
+
+set.seed(10010)
+ref <- mockSCE(ncells = 1000)
+
+# Constructing a classifier:
+is.G1 <- which(ref$Cell_Cycle %in% c("G1", "G0"))
+is.S <- which(ref$Cell_Cycle == "S")
+is.G2M <- which(ref$Cell_Cycle == "G2M")
+out <- sandbag(ref, list(G1 = is.G1, S = is.S, G2M = is.G2M))
+
+set.seed(10010)
+phases <- mockSCE(ncells = 200)
+
+# Run cyclone
+phases_assignments <- cyclone(phases, out)
+
+save(phases_assignments, file = "phases_assignments.rda", compress = "xz")
+```
+
+# Create `dbl_results` from `findDoubletClusters` results
+
+A `SingleCellExperiment` object with 3 clusters of cells and the expression of 200 genes was 
+created using `mockDoubletSCE()` from the `r Biocpkg("scDblFinder")` package. Using the same 
+package, the doublet-ness of each cluster was computed using `findDoubletClusters()`. The 
+results were saved as a RData file.
+
+```{r build_dbl, eval = FALSE}
+library(SingleCellExperiment)
+library(scDblFinder)
+
+set.seed(10010)
+dbl <- mockDoubletSCE(ncells = c(100, 300, 250), ngenes = 200)
+
+# Run findDoubletClusters
+dbl_results <- findDoubletClusters(counts(dbl), dbl$cluster)
+
+save(dbl_results, file = "dbl_results.rda", compress = "xz")
+```
+
+# Create a processed `SingleCellExperiment` object
+
+A mock cell type reference (`ref`) with 20 samples and the expression of 1000 genes was 
+created using the `r Biocpkg("SingleR")` package, which was used in the next section to annotate 
+cell types. A second mock object (`sce`) with 250 cells was created using `.mockTestData()` and 
+`.mockRefData()`. The genes were given mocked up symbols.
+
+```{r build_sce, eval = FALSE}
+library(SingleR)
+library(scater)
+library(scran)
+
+# Generate 1000 random gene symbols
+set.seed(10010)
+symbols <- paste0(do.call(paste0, replicate(3, sample(LETTERS, 1000, TRUE), FALSE)),
+                  do.call(paste0, replicate(2, sample(1:9, 1000, TRUE), FALSE)))
+# table(table(symbols) == 1) # check uniqueness
+
+# Create mock reference for SingleR
+set.seed(10010)
+ref <- .mockRefData()
+colnames(ref) <- paste0("SAMPLE_", seq_len(ncol(ref)))
+rownames(ref) <- symbols
+
+ref <- logNormCounts(ref)
+ref$label <- paste("Type", as.numeric(factor(ref$label)))
+
+# Create mock SingleCellExperiment
+set.seed(10010)
+sce <- as(.mockTestData(.mockRefData(), ncells = 250), "SingleCellExperiment")
+colnames(sce) <- paste0("CELL_", seq_len(ncol(sce)))
+rownames(sce) <- symbols
+```
+
+Then, the `sce` object is processed as follow:
+
+- Compute and add quality control metrics using `addPerCellQC()` and `addPerFeatureQC`.
+- Compute normalised expression using `logNormCounts()`.
+- Select highly variable genes using `getTopHVGs()` based on the variance modelling statistics
+  from `modelGeneVar()`.
+- Perform principal components analysis (PCA), t-stochastic neighbour embedding (t-SNE) and
+  uniform manifold approximation and projection (UMAP) were performed on cells.
+- Perform automated cell type annotation using `SingleR()` with mock reference (`ref`).
+- Find candidate marker genes for clusters of cells using `findMarkers()`.
+
+The resulting object was saved as a RData file.
+
+```{r process_sce, eval = FALSE}
+sce <- addPerCellQC(sce)
+sce <- addPerFeatureQC(sce)
+sce <- logNormCounts(sce)
+dec <- modelGeneVar(sce)
+hvg <- getTopHVGs(dec, n = 200, var.threshold = 0)
+metadata(sce)[['modelGeneVar']] <- dec
+metadata(sce)[['HVG']] <- hvg
+
+set.seed(10010)
+sce <- runPCA(sce)
+
+set.seed(10010)
+sce <- runTSNE(sce)
+
+set.seed(10010)
+sce <- runUMAP(sce)
+
+# Run SingleR
+pred <- SingleR(sce, ref, labels = ref$label)
+sce$CellType <- pred$pruned.labels
+metadata(sce)[['SingleR']] <- pred
+
+# Run findMarkers
+out1 <- findMarkers(sce, groups = sce$label, pval.type = "any")
+metadata(sce)[['findMarkers1']] <- out1
+out2 <- findMarkers(sce, groups = sce$label, pval.type = "all")
+metadata(sce)[['findMarkers2']] <- out2
+out3 <- findMarkers(sce, groups = sce$label, pval.type = "any", min.prop = 0.5)
+metadata(sce)[['findMarkers3']] <- out3
+out4 <- findMarkers(sce, groups = sce$label, test.type = "wilcox")
+metadata(sce)[['findMarkers4']] <- out4
+
+save(sce, file = "sce.rda", compress = "xz")
+```
+
+## Preparing the `pasilla` RNA-seq dataset
+
+The `r Biocpkg("pasilla")` package containing the *Drosophila melanogaster* RNA-seq with RNAi
+knockdown experiment of Pasilla was used as the demo dataset for generating results following
+differential expression (DE) analysis by `r Biocpkg("edgeR")` and `r Biocpkg("DESeq2")`.
+
+```{r load_pasilla, eval = FALSE}
+library(pasilla)
+
+# Get data from the pasilla package
+pasCts <- system.file("extdata", "pasilla_gene_counts.tsv",
+                      package = "pasilla", mustWork = TRUE)
+pasAnno <- system.file("extdata", "pasilla_sample_annotation.csv",
+                       package = "pasilla", mustWork = TRUE)
+
+cts <- as.matrix(read.csv(pasCts, sep = "\t", row.names = "gene_id"))
+coldata <- read.csv(pasAnno, row.names = 1)
+```
+
+The `pasilla` RNA-seq data was processed to harmonise the samples in the provided count and
+annotation data files. Additional gene annotation were obtained from BioMart using the
+`r Biocpkg("biomaRt")` package, genes that have annotations were retained for DE analysis.
+
+```{r prepare_pasilla, eval = FALSE}
+library(biomaRt)
+
+# Prepare sample annotations
+coldata <- coldata[,c("condition","type")]
+coldata$condition <- factor(coldata$condition)
+coldata$condition <- relevel(coldata$condition, ref = "untreated")
+coldata$type <- factor(coldata$type)
+levels(coldata$type) <- sub("-", "_", levels(coldata$type))
+rownames(coldata) <- sub("fb", "", rownames(coldata))
+cts <- cts[, rownames(coldata)]
+
+# Use BioMart for gene annotations
+ensembl <- useEnsembl(biomart = "genes", dataset = "dmelanogaster_gene_ensembl")
+geneAnno <- getBM(attributes = c("chromosome_name","start_position",
+                                 "end_position","ensembl_gene_id",
+                                 "external_gene_name","strand","gene_biotype"),
+                  filters = "ensembl_gene_id", values = rownames(cts), mart = ensembl)
+
+# Keep genes with annotation
+cts <- cts[geneAnno$ensembl_gene_id,]
+all(rownames(cts) == geneAnno$ensembl_gene_id)
+```
+
+## Create `TopTags` object `res_edger`
+
+The `r Biocpkg("edgeR")` package was used to perform DE analysis on the `pasilla` dataset, 
+and the results were saved as a RData file.
+
+```{r build_topTags, eval = FALSE}
+library(edgeR)
+
+# Object construction
+d <- DGEList(counts = cts, genes = geneAnno, group = coldata$condition)
+d <- calcNormFactors(d)
+
+# Fit the NB GLMs with QL methods
+design <- model.matrix(~ coldata$type + coldata$condition)
+d <- estimateDisp(d, design)
+fit <- glmQLFit(d, design)
+results <- glmQLFTest(fit)
+res_edger <- topTags(results, n = nrow(results))
+
+save(res_edger, file = "res_edger.rda", compress = "xz")
+```
+
+## Create `DESeqResults` object `res_deseq2`
+
+The `r Biocpkg("DESeq2")` package was used to perform DE analysis on the `pasilla` dataset, 
+and the results were saved as a RData file.
+
+```{r build_results, eval = FALSE}
+library(DESeq2)
+
+# Object construction
+dds <- DESeqDataSetFromMatrix(countData = cts, colData = coldata, 
+			      design = ~ type + condition)
+dds <- DESeq(dds)
+res_deseq2 <- results(dds)
+res_deseq2@listData <- c(as.list(geneAnno), res_deseq2@listData)
+res_deseq2@elementMetadata <- rbind(DataFrame(type = "annotation",
+                                              description = colnames(geneAnno)),
+                                    res_deseq2@elementMetadata)
+
+save(res_deseq2, file = "res_deseq2.rda", compress = "xz")
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```
+

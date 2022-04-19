@@ -1,0 +1,260 @@
+---
+title: "Using scRUtils for single-cell data visualisations"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{3. Single-cell data visualisations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE,
+                      cache = FALSE, dpi = 100)
+library(BiocStyle)
+```
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data,
+particularly single-cell dataset. It evolved from a collection of helper functions that were
+used in our in-house scRNA-seq processing workflow.
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+
+This vignette (#3) will demonstrate functions specific for single-cell datasets.
+
+# Load packages
+
+To use `scRUtils` and relevant packages in a R session, we load them using the `library()` command.
+
+```{r load-packages, message = FALSE}
+library(scRUtils)
+
+library(cowplot)
+library(ggplot2)
+library(scater)
+```
+
+# General visualisations
+
+## Plot G2M against G1 scores from `cyclone` results
+
+The `plotCyclone()` function produces a scatter plot to show the predicted G1 and G2M scores 
+and cell cycle phases of single cells after performing classification using `cyclone()` from 
+the `r Biocpkg("scran")` package.
+
+```{r plot-cyclone, fig.asp = 0.8}
+data(phases_assignments)
+
+plotCyclone(phases_assignments)
+```
+
+## Plot expression frequency against mean counts
+
+The `plotExprsFreqVsMean()` function uses `plotRowData()` from the `r Biocpkg("scater")`
+package to produce a scatter plot of expression frequency against mean counts by using per-
+feature quality control metrics produced by `addPerCellQC()` or `perFeatureQCMetrics()` from
+the `r Biocpkg("scuttle")` package and stored in `rowData` of the `SingleCellExperiment` input.
+
+The original function of the same name can be found in the legacy scater package
+(`r Githubpkg("davismcc/archive-scater")`) and is now deprecated.
+
+```{r plot-freq-mean, fig.wide = TRUE, fig.asp = 0.6}
+data(sce)
+
+plotExprsFreqVsMean(sce, title = "Expression frequency vs. mean expression")
+```
+
+## Plot logcounts variance against logcounts mean
+
+The `plotVarianceVsMean()` function calculates the per-feature mean and variance using 
+normalised counts (accessible via `logcounts()`) from a `SingleCellExperiment` object, and 
+returns a logcounts mean-variance scatter plot.
+
+When the `rowData` slot of the `SingleCellExperiment` input contains QC metrics for features 
+that were returned by `addPerCellQC()` or `perFeatureQCMetrics()`, this function will use 
+`detected` (percentage of expressed features above the detection limit) to calculate 
+`pct_dropout` (percentage of dropouts) and colour the points accordingly.
+
+```{r plot-var-mean, fig.wide = TRUE, fig.asp = 0.6}
+plotVarianceVsMean(sce, title = "logcounts mean-variance plot")
+```
+
+## Plot variance modelling results
+
+The `plotVariableFeature()` function requires a `SingleCellExperiment` object (argument `sce`)
+and the resulting DataFrame (argument `var`) after performing variance modelling, such as
+`modelGeneVar()` from the `r Biocpkg("scran")` package, and produces a mean-variance scatter plot.
+
+In addition to the two required inputs, if `rowData(sce)` has `is_pass` and/or `is_ambient` 
+columns containing logical values (i.e. `TRUE` and `FALSE`), denoting if a gene passed QC or if
+its expression is attributable to ambient contamination, the resulting figure will show the genes
+in different shapes.
+
+```{r plot-var, fig.wide = TRUE}
+var <- metadata(sce)[["modelGeneVar"]]
+
+plotVariableFeature(sce, var, top_n = 5, title = "modelGeneVar")
+```
+
+One can supply the `hvg` argument a character vector containing highly variable genes to be coloured
+in red.
+
+```{r plot-var-hvg, fig.wide = TRUE}
+hvg <- metadata(sce)[["HVG"]]
+
+plotVariableFeature(sce, var, hvg, title = "modelGeneVar (highlight HVGs)")
+```
+
+## Plot distribution of approximate silhouette widths
+
+The `plotSilhouette()` function produces a violin scatter plot to show the distribution of the
+approximate silhouette width across cells in each cluster. It uses `approxSilhouette()` from the
+`r Biocpkg("bluster")` package' to calculate the silhouette widths using an approximate approach.
+
+Using the information stored in the returned DataFrame, it:
+
+- prints the descriptive statistics of approximate silhouette widths.
+- calculates the percentage of cells assigned to the closest cluster and prints the result when `printDiff = TRUE`.
+- creates a violin scatter plot to show the distribution of the approximate silhouette width when `plot = TRUE`.
+
+These information can allow users to identify poorly separate clusters quickly.
+
+```{r plot-silhouette, fig.wide = TRUE}
+mat <- reducedDim(sce, "PCA")
+plotSilhouette(mat, sce$label)
+```
+
+## Create QC plots from `findDoubletClusters` results
+
+The `plotqcDoubletClusters` function produces QC plots to aid deciding potential doublet clusters
+after running `findDoubletClusters()` from the `r Biocpkg("scDblFinder")` package. By setting the
+`qc_plot` argument, it returns:
+
+0. The default, a compound figure.
+1. A scatter plot of median number of significant genes (`median.de`) against number of significant genes (`num.de`).
+2. A barplot showing the proportion of cells in each of the query cluster (`prop`).
+3. A scatter plot of ratio of the median library sizes for the second source cluster (`lib.size2`) against first source cluster (`lib.size1`).
+
+The example below produces a compound figure.
+
+```{r plot-dbl-qc0, fig.wide = TRUE, fig.asp = 0.8}
+data(dbl_results)
+
+plotqcDoubletClusters(dbl_results, text_size = 5, theme_size = 16)
+```
+
+Or set `qc_plot` to 1 to produce just the `median.de` against `num.de` scatter plot.
+
+```{r plot-dbl-qc1, fig.asp = 0.8}
+plotqcDoubletClusters(dbl_results, qc_plot = 1)
+```
+
+# UMAP/TSNE projection
+
+## Add labels to reduced dimension plots
+
+The `add_label()` function is designed to be used with `plotReducedDim()` from the 
+`r Biocpkg("scater")` package without specifying text label (i.e. via `text_by`). Then use 
+`add_label()` to place labels centrally. The repel-away-from-center behaviour in 
+`plotReducedDim()` should be fixed in `r Biocpkg("scater")` v1.23.5.
+
+```{r add-label, fig.wide = TRUE, fig.asp = 0.45}
+p1 <- plotReducedDim(sce, "TSNE", colour_by = "label", text_by = "label",
+                     text_size = 8, theme_size = 16) + ggtitle("Original")
+p2 <- plotReducedDim(sce, "TSNE", colour_by = "label", theme_size = 16) +
+        add_label(sce, "TSNE") + ggtitle("Use `add_label`")
+
+plot_grid(p1, p2)
+```
+
+## Colour cells in a TSNE or UMAP
+
+The `plotProjection()` function uses `plotReducedDim()` from the `r Biocpkg("scater")` package 
+to show cells on a pre-calculated low-dimensional projection (such as UMAP or t-SNE) and colour 
+by a choosen cell-specific feature or level of gene expression. 
+
+The function adds aesthetic, such as point colours, legend controls, title and subtitles, to the 
+final figure. It uses `add_label()` to label cells when `text_by` is used.
+
+```{r plot-tsne, fig.asp = 0.8}
+plotProjection(sce, "label", dimname = "TSNE", text_by = "label",
+               feat_desc = "Cluster")
+```
+
+```{r plot-umap, fig.asp = 0.8}
+plotProjection(sce, "DKD62", dimname = "UMAP", text_by = "label",
+               feat_desc = "DKD62 Expression", guides_barheight = 15)
+```
+
+## Coloure cells in TSNE or UMAP side-by-side
+
+The `plotProjections()` function make use of `plotProjection()` to show cells on two pre-
+calculated low-dimensional projection (such as UMAP and t-SNE) in a compound figure using 
+`plot_grid()` from the `r CRANpkg("cowplot")` package. 
+
+It also uses `get_legend()` from `r CRANpkg("cowplot")` to produce a shared legend and places 
+it at the desired position as specified by `legend_pos`.
+
+```{r plot-tsne-umap-t, fig.wide = TRUE, fig.asp = 0.5}
+plotProjections(sce, "label", dimname = c("TSNE", "UMAP"),
+                text_by = "label", feat_desc = "Cluster", point_size = 2)
+```
+
+```{r plot-tsne-umap-r, fig.wide = TRUE, fig.asp = 0.6}
+plotProjections(sce, "DKD62", dimname = c("TSNE", "UMAP"),
+                text_by = "label", feat_desc = "DKD62 Expression",
+                point_size = 2, legend_pos = "bottom", guides_barwidth = 15,
+                rel_heights = c(10, 1))
+```
+
+## Show ligand-receptor gene expression levels in a TSNE or UMAP
+
+The `plotReducedDimLR()` function produces a figure to show the levels of gene expression of a 
+ligand-receptor pair on a pre-calculated low-dimensional projection (such as UMAP or t-SNE).
+
+The function is based on `plotReducedDim()` from the `r Biocpkg("scater")` package, and uses
+`new_scale_colour()` from the `r CRANpkg("ggnewscale")` package to add an additional `layer` where
+a second `geom` uses another colour scale to show the expression intensity of a second gene.
+
+```{r plot-lr, fig.asp = 0.8}
+plotReducedDimLR(sce, "TSNE", c("OOX46", "BFP78"), text_by = "label")
+```
+
+Even though `plotReducedDimLR()` was designed initially to show ligand-receptor expression, by 
+changing the `lr_desc` and `lr_sep` arguments, one can also use this function to show the 
+expression of two genes, that could be expressed in a mutually exclusive fashion, or specific
+to certain cell clusters or cell types.
+
+```{r plot-lr-gp, fig.asp = 0.8}
+plotReducedDimLR(sce, "TSNE", c("OOX46", "BFP78"), lr_desc = c("B", "D"),
+                 lr_sep = " and ", text_by = "label")
+```
+
+If it is too difficult to visualise the gene expression with two colour scales on the same figure, 
+one can use `oneplot = FALSE` to create a compound figure with 2 sub-plots, each showing their 
+respective colours.
+
+```{r plot-lr-sep, fig.wide = TRUE, fig.asp = 0.45}
+plotReducedDimLR(sce, "TSNE", c("OOX46", "BFP78"),
+                 lr_desc = c("Grp B", "Grp D"), lr_sep = " and ", 
+		 text_by = "label", guides_barheight = 10, theme_size = 16, 
+		 oneplot = FALSE)
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```

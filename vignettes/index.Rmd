@@ -1,0 +1,54 @@
+---
+title: "scRUtils: Single-Cell Sequencing Analysis Utilities"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc: false
+    number_sections: false
+    self_contained: true
+    highlight: tango
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE,
+                      cache = FALSE, dpi = 100)
+```
+
+[![Project Status: Active – The project has reached a stable, usable state and is being actively
+developed.](https://www.repostatus.org/badges/latest/active.svg)](https://www.repostatus.org/#active)
+
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data,
+particularly single-cell dataset. It evolved from a collection of helper functions that were
+used in our in-house scRNA-seq processing workflow.
+
+## Installation
+
+The package is current available only on [GitHub](https://github.com/ycl6/scRUtils).
+
+``` r
+devtools::install_github("ycl6/scRUtils")
+```
+
+## Load packages
+
+To use `scRUtils` in a R session, load it using the `library()` command.
+
+``` r
+library(scRUtils)
+```
+
+## Usage
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+

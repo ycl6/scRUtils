@@ -1,0 +1,55 @@
+Package: scRUtils
+Type: Package
+Title: Single-Cell Sequencing Analysis Utilities
+Version: 0.1.0
+Authors@R:
+    person(
+      given = "I-Hsuan",
+      family = "Lin",
+      role = c("aut", "cre"),
+      email = "ycl6.gel@gmail.com",
+      comment = c(ORCID = "0000-0002-6207-1299")
+    )
+Description: Provides utility functions for performing single-cell data analyses, 
+    focusing on providing additional plotting functionality, perform enrichR 
+    analysis on list of objects, etc.
+Depends:
+    R (>= 3.6.0)
+Imports:
+    S4Vectors,
+    SingleCellExperiment,
+    SummarizedExperiment,
+    bluster,
+    cowplot,
+    dplyr,
+    enrichR (>= 3.0),
+    ggbeeswarm,
+    ggforce,
+    ggnewscale,
+    ggplot2,
+    ggrepel,
+    grDevices,
+    grid,
+    rlang,
+    scales,
+    scater,
+    stats,
+    tibble,
+    tidyr,
+    utils
+Suggests:
+    BiocStyle,
+    DelayedMatrixStats,
+    Matrix,
+    DESeq2,
+    edgeR,
+    gtools,
+    knitr,
+    rmarkdown,
+    testthat,
+    viridis
+VignetteBuilder: knitr
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2

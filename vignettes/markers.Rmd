@@ -1,0 +1,278 @@
+---
+title: "Utilities for markers and DEGs from scRUtils"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{4. Markers and DEGs}
+  %\VignetteEngine{knitr::rmarkdown}
+  %VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE,
+                      cache = FALSE, dpi = 100)
+library(BiocStyle)
+```
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data,
+particularly single-cell dataset. It evolved from a collection of helper functions that were
+used in our in-house scRNA-seq processing workflow.
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+
+This vignette (#4) will demonstrate functions for markers and DEGs identified from single-cell datasets.
+
+# Load packages
+
+To use `scRUtils` and relevant packages in a R session, we load them using the `library()` command.
+
+```{r load-packages, message = FALSE}
+library(scRUtils)
+
+library(ggplot2)
+library(scater)
+```
+
+# Markers and DEGs
+
+## Print marker gene stats from `findMarkers` output
+
+The `printMarkerStats()` function parses the `findMarkers()` output (from the `r Biocpkg("scran")`
+package) and print the number of marker genes that "passed" the `fdr` or `top` threshold on to
+standard output in interactive sessions. It provides a quick way to find out the number of
+candidate marker genes.
+
+The function can detect the `pval.type` and `test.type`, to a certain degree, based on the
+resulting DataFrame structure. One can optionally provide the `pval.type` and `min.prop`
+settings used to run `findMarkers()` to allow `printMarkerStats()` to use them in the printed
+messages.
+
+The `sce` demo has four `findMarkers()` results stored in the `metadata` slot:
+
+1. running `findMarkers()` with `pval.type = "any"`
+2. running `findMarkers()` with `pval.type = "all"`
+3. running `findMarkers()` with `pval.type = "any"` and `min.prop = 0.5`
+4. running `findMarkers()` with `test.type = "wilcox"`
+
+### With `pval.type = "any"`
+
+```{r print-marker-stats-1}
+data(sce)
+
+# Show 1st DataFrame in the list
+# DataFrame(metadata(sce)[["findMarkers1"]][[1]])
+printMarkerStats(metadata(sce)[["findMarkers1"]])
+```
+
+### With `pval.type = "all"`
+
+```{r print-marker-stats-2}
+# Show 1st DataFrame in the list
+# DataFrame(metadata(sce)[["findMarkers2"]][[1]])
+printMarkerStats(metadata(sce)[["findMarkers2"]])
+```
+
+### With `pval.type = "any"` and `min.prop = 0.5`
+
+```{r print-marker-stats-3}
+# Show 1st DataFrame in the list
+# DataFrame(metadata(sce)[["findMarkers3"]][[1]])
+printMarkerStats(metadata(sce)[["findMarkers3"]], min.prop = 0.5)
+```
+
+### With `test.type = "wilcox"`
+
+```{r print-marker-stats-4}
+# Show 1st DataFrame in the list
+# DataFrame(metadata(sce)[["findMarkers4"]][[1]])
+printMarkerStats(metadata(sce)[["findMarkers4"]])
+```
+
+## Retrieve marker genes from a `findMarkers` output DataFrame
+
+The `getMarkers()` function parses a `findMarkers()` output DataFrame and returns the up- and
+down-regulated marker genes that passed the specified threshold.
+
+By specifying `direction`, the function selects up-regulated markers when `direction = "up"`,
+down-regulated markers when `direction = "down"` and both up- and down-regulated markers when
+`direction = "both"` (default). The definition of up/down-regulation depends on the `test.type`
+used when running `findMarkers()`.
+
+The example below retrieves first 1000 markers (default `max`) from the 1st DataFrame
+(Cluster A) in 'findMarkers1', return rownames. There will only be
+`r length(getMarkers(metadata(sce)[["findMarkers1"]][[1]]))` genes returned as shown in the
+`printMarkerStats()` message.
+
+```{r get-markers-1}
+genes <- getMarkers(metadata(sce)[["findMarkers1"]][[1]])
+length(genes)
+head(genes)
+```
+
+Next example retrieves first 1000 up-regulated markers (default `max`) from the 2nd DataFrame
+(Cluster B) in 'findMarkers4', return rownames. There will only be
+`r length(getMarkers(metadata(sce)[["findMarkers4"]][[2]], direction  = "up"))` genes returned
+as shown in the `printMarkerStats()` message.
+
+```{r get-markers-2}
+genes <- getMarkers(metadata(sce)[["findMarkers4"]][[2]], direction  = "up")
+length(genes)
+head(genes)
+```
+
+## Retrieve differentially expressed genes from edgeR or DESeq2 analysis
+
+The `getDEGs()` function parses an object of class `TopTags`, `DGEExact` or `DGELRT` from
+`r Biocpkg("edgeR")` or `DESeqResults` class from `r Biocpkg("DESeq2")`, and returns the
+differentially expressed genes (DEGs) that passed the specified thresholds.
+
+As with `getMarkers()`, by specifying `direction`, the function selects DEGs with a positive and
+negative logFC when `direction = "both"` (default), only positive logFC when `direction = "up"`,
+and only negative logFC when `direction = "down"`.
+
+The example below retrieves first 250 up-regulated DEGs from DESeq2's output, return rownames
+(Ensembl ID).
+
+```{r get-degs-deseq2}
+data(res_deseq2)
+
+genes <- getDEGs(res_deseq2, direction = "up", max = 250)
+length(genes)
+head(genes)
+```
+
+Next example retrieves first 1000 DEGs (default `max`) at FDR = 10% from edgeR's output,
+return values from the `external_gene_name` column (Gene Symbol).
+
+```{r get-degs-edger}
+data(res_edger)
+
+genes <- getDEGs(res_edger, fdr = 0.1, column_by = "external_gene_name")
+length(genes)
+head(genes)
+```
+
+## Export results from findMarkers, edgeR or DESeq2 to tsv
+
+The `printResList()` function takes a list of objects containing results from `findMarkers()`,
+`r Biocpkg("edgeR")` or `r Biocpkg("DESeq2")`, and save the content to text file(s).
+
+When `concatenate = TRUE`, the function concatenate the test statistics from results stored
+in the list and outputs a single file.
+
+The example below saves the results from 'findMarkers1' into individual files in the per-session
+temporary directory `tempdir()`.
+
+```{r export-res}
+exportResList(metadata(sce)[["findMarkers1"]], dir_path = tempdir())
+```
+
+Next we use `concatenate = TRUE` save the concatenated results from 'findMarkers4' in the per-
+session temporary directory `tempdir()`.
+
+```{r export-res-concatenated}
+exportResList(metadata(sce)[["findMarkers4"]], concatenate = TRUE,
+              prefix = "wilcox", dir_path = tempdir())
+```
+
+# Enrichment analysis with `enrichR`
+
+## Perform enrichR analysis on results from findMarkers, edgeR or DESeq2
+
+The `runEnrichR()` function takes a list of objects containing `findMarkers()`,
+`r Biocpkg("edgeR")` or `r Biocpkg("DESeq2")` results, and perform enrichment analysis on
+the genes that passed the specified threshold.
+
+`runEnrichR()` uses `enrichr()` from the `r CRANpkg("enrichR")` package to submit gene symbols
+for enrichment analysis to the [Enrichr website](https://maayanlab.cloud/Enrichr). By default
+(with `column_by = NULL`), this function extracts rownames from the input DataFrames and
+submits the acquired strings for the analysis.
+
+The gene symbols are submitted to the main site (`site = "Enrichr"`) with gene sets
+compiled from human and mouse genes. By change the `site` setting, it can use other
+[modEnrichr sites](https://maayanlab.cloud/modEnrichr/) suitable for other model organisms.
+
+In the example below, we construct a list of 3 DataFrames using the same DESeq2 output
+(`res_deseq2`) to mimic having a list containing results from multiple sets of comparisons.
+As `pasilla` is a RNA-seq dataset from *Drosophila melanogaster*, we change the `site`
+argument to `"FlyEnrichr"` to carry out the analysis.
+
+```{r run-enrichr}
+# Construct a list of results to run analysis
+res.de <- list(A_B = res_deseq2, A_C = res_deseq2, B_C = res_deseq2)
+
+# Select gene-set libraries
+dbs <- c("GO_Molecular_Function_2018", "GO_Biological_Process_2018")
+
+# Run enrichR
+# Specify the gene symbols are stored in the 'external_gene_name' column
+res.ora <- runEnrichR(res.de, dbs = dbs, site = "FlyEnrichr",
+                      column_by = "external_gene_name")
+```
+
+The returned object `res.ora` is a named list of list of DataFrames:
+
+- On the top-level are lists with names from original DESeq2 input, i.e. "`r names(res.de)`".
+- In each of them are lists with the names of selected gene-set libraries, i.e. "`r dbs`".
+- Finally, in each is a DataFrame containing the enrichment results from a gene-set libraries.
+
+```{r run-enrichr-res}
+names(res.ora)
+
+names(res.ora[["A_B"]])
+
+str(res.ora[["A_B"]][["GO_Molecular_Function_2018"]])
+```
+
+## Visualise Enrichr results as barplots
+
+The `plotEnrichR()` function takes a list of list of DataFrames containing Enrichr results
+returned by `runEnrichR()` and create barplots from a selected gene-set library.
+
+It prints barplots from each group of comparison using `grid.draw()` from the `r CRANpkg("grid")`
+package one after another, therefore the plotting feature is suitable only in Jupyter Notebook or
+R Markdown. Otherwise, disable plotting by specifying the `prefix` argument to save barplots to
+PDF files.
+
+```{r plot-enrichr, fig.wide = TRUE}
+plotEnrichR(res.ora, db = "GO_Biological_Process_2018", theme_size = 14)
+```
+
+Alternatively, we can export barplots to PDF files in the per-session temporary directory
+`tempdir()` as shown below.
+
+```{r plot-enrichr-pdf}
+plotEnrichR(res.ora, db = "GO_Biological_Process_2018", prefix = "Enrichr",
+            dir_path = tempdir(), width = 12, height = 5)
+```
+
+## Export results from Enrichr to tsv
+
+The `printEnrichR()` function takes a list of list of DataFrames containing Enrichr results
+returned by `runEnrichR()` and save all the results in the list object to individual text files.
+
+We are not using `printEnrich()` from the `r CRANpkg("enrichR")` package to print results due
+to a bug not yet fixed in the current verion in CRAN at the time of writing (v3.0).
+
+```{r print-enrichr}
+printEnrichR(res.ora, prefix = "Enrichr", dir_path = tempdir())
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```
+

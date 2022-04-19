@@ -1,0 +1,173 @@
+---
+title: "Create/enhance data visualisations with scRUtils"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{2. General data visualisations}
+  %\VignetteEngine{knitr::rmarkdown}
+  %VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE,
+                      cache = FALSE, dpi = 100)
+library(BiocStyle)
+```
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data,
+particularly single-cell dataset. It evolved from a collection of helper functions that were
+used in our in-house scRNA-seq processing workflow.
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+
+This vignette (#2) will demonstrate functions for general visualisation purposes.
+
+# Load packages
+
+To use `scRUtils` and relevant packages in a R session, we load them using the `library()` command.
+
+```{r load-packages, message = FALSE}
+library(scRUtils)
+
+library(ggforce)
+library(ggplot2)
+library(scater)
+```
+
+# Usage
+
+## Jupyter Notebook-specific
+
+### Change `repr.plot.*` behaviour
+
+The `fig()`, function uses `options()` to change the behaviour of `repr.plot.*`. It provides a
+quick and easy way to change plot size and other `repr.plot.*` behaviours when running R in a
+**Jupyter Notebook**. If use without indicating any argument, the plot behaviour will be reset
+to default. The `reset.fig()` is an alias of `fig()`.
+
+The example below is not evaluated as the function has no effect in R Markdown.
+
+```{r repr-plot, eval = FALSE}
+library(ggplot2)
+
+# Change plot area width to 8 inches and height to 5 inches
+fig(width = 8, height = 5)
+ggplot(mpg, aes(class)) + geom_bar()
+
+# Reset to default settings
+fig()
+
+# Change plot wider and taller
+fig(width = 14, height = 10)
+ggplot(mpg, aes(class)) + geom_bar()
+
+# Alias of fig()
+reset.fig()
+```
+
+## Discrete palette
+
+### The `c30()` and `c40()` palettes
+
+The `c30()` palette has 30 unique colours and `c40()` palette has 40 unique colours.
+The `c40()` colour palette is taken from `plotScoreHeatmap()` of the `r Biocpkg("SingleR")`
+package (which itself is based on \pkg{DittoSeq} and Okabe-Ito colors).
+
+```{r show-palettes, fig.small = TRUE}
+# Show colours as pie charts
+pie(rep(1,30), col = c30(), radius = 1.05)
+pie(rep(1,40), col = c40(), radius = 1.05)
+```
+
+### Choose discrete colours
+
+The `choosePalette()` function takes a character vector of features and optionally a vector of
+color codes to evaluate if the supplied color codes has sufficient number of colours. It returns
+a named vector of color codes based on the input features, with the same length as the unique
+features.
+
+By default, it uses the `c30()` palette when no more than 30 colours are required, then the
+`c40()` palette, and lastly the `rainbow()` colour palette when requiring more than 40 colours.
+
+The example below shows using a character vector of 10 letters as input and `choosePalette()`
+returns 5 colours.
+
+```{r choose-palette-vector}
+feat <- rep(LETTERS[1:5], 2)
+feat
+choosePalette(feat) # use c30()
+```
+
+Next example shows using a factor of 15 letters and 3 levels as input and `choosePalette()`
+returns 3 of the 10 colours from the `rainbow(10)` colour palette.
+
+```{r choose-palette-factor}
+feat <- factor(rep(LETTERS[1:3], 5))
+feat
+choosePalette(feat, rainbow(10))
+```
+
+## Parallel sets diagram
+
+### Add nudged labels in a parallel sets diagram
+
+The `geom_parallel_sets_labs()` function in this package is the same function as
+`geom_parallel_sets_labels()` from the `r CRANpkg("ggforce")` package but with the ability to
+nudge labels at a fixed distance. It is especially useful when the labels are too long to fit
+inside the bars depicting the discrete categories. A pull request of the nudge enhancement has
+been submitted to its GitHub repository, `r Githubpkg("thomasp85/ggforce")`, awaiting approval.
+
+```{r nudge-labels, fig.wide = TRUE, fig.asp = 0.8}
+library(ggforce)
+data <- as.data.frame(Titanic)
+data <- gather_set_data(data, 1:4)
+
+# Use nudge_x to offset and hjust = 0 to left-justify label
+ggplot(data, aes(x, id = id, split = y, value = Freq)) +
+  geom_parallel_sets(aes(fill = Sex), alpha = 0.3, axis.width = 0.1) +
+  geom_parallel_sets_axes(axis.width = 0.1) +
+  geom_parallel_sets_labs(colour = "red", size = 6, angle = 0,
+                          nudge_x = 0.1, hjust = 0) +
+  theme_bw(20)
+```
+
+## Create a 2-variable parallel sets diagram
+
+The `plotParallel()` function uses the `r CRANpkg("ggforce")` package to produce a parallel
+sets diagram for visualising interaction between 2 variables. The inputs are two character
+vectors containing membership information.
+
+The example below uses the `Titanic` dataset to show the class and age of the passengers.
+
+```{r plot-parallel-1, fig.wide = TRUE, fig.asp = 0.4}
+data <- as.data.frame(Titanic)
+plotParallel(data$Class, data$Age, labels = c("class", "age"))
+```
+
+We can also use `plotParallel()` to show cell-specific features of a single-cell dataset, such 
+as clustering and cell type assignment.
+
+```{r plot-parallel-2, fig.wide = TRUE}
+data(sce)
+
+plotParallel(sce$label, sce$CellType, labels = c("Cluster", "Cell Type"),
+             add_counts = TRUE, text_size = 4)
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```

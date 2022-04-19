@@ -1,0 +1,125 @@
+---
+title: "Introduction to scRUtils"
+author: "I-Hsuan Lin"
+date: "`r format(Sys.Date(), '%m/%d/%Y')`"
+package: scRUtils
+output:
+  BiocStyle::html_document:
+    toc_float: yes
+vignette: >
+  %\VignetteIndexEntry{1. Introduction to scRUtils}
+  %\VignetteEngine{knitr::rmarkdown}
+  %VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(error = FALSE, warning = FALSE, message = TRUE, tidy = FALSE, 
+		      cache = FALSE, dpi = 100)
+library(BiocStyle)
+library(DESeq2)
+```
+
+# Overview
+
+`scRUtils` provides various utilities for visualising and functional analysis of RNA-seq data,
+particularly single-cell dataset. It evolved from a collection of helper functions that were
+used in our in-house scRNA-seq processing workflow.
+
+The documentation of this package is divided into 5 sections:
+
+1. [Introduction to scRUtils](https://ycl6.github.io/scRUtils/scRUtils-intro.html)
+2. [General data visualisations](https://ycl6.github.io/scRUtils/basics.html)
+3. [Single-cell visualisations](https://ycl6.github.io/scRUtils/singleCell.html)
+4. [Markers and DEGs](https://ycl6.github.io/scRUtils/markers.html)
+5. [Demo datasets](https://ycl6.github.io/scRUtils/demoData.html)
+
+This vignette (#1) will introduce the package and the included demo datasets.
+
+# Installation
+
+The package is current available only on GitHub.
+
+```{r, eval = FALSE}
+devtools::install_github("ycl6/scRUtils")
+```
+
+# Load packages
+
+To use `scRUtils` in a R session, load it using the `library()` command.
+
+```{r load-packages, message = FALSE}
+library(scRUtils)
+```
+
+# Use demo datasets
+
+Demo datasets were created to demonstrate functions available in this package. The datasets can 
+be loaded by using `data()`. Details on how the datasets were produced can be found in the 
+following vignette: [Creating demo datasets](demoData.html).
+
+## `cyclone` result
+
+`phases_assignments` is a `list` object of 3, containing `cyclone` results performed on a 
+simulated scRNA-seq dataset.
+
+```{r load-cyclone}
+data(phases_assignments)
+str(phases_assignments)
+
+table(phases_assignments[["phases"]])
+```
+
+## `findDoubletClusters` result
+
+`dbl_results` is a `DFrame` object containing`findDoubletClusters` results performed on a 
+simulated scRNA-seq dataset.
+
+```{r load-dbl}
+data(dbl_results)
+dbl_results
+```
+
+## Processed simulated single-cell RNA-seq dataset
+
+`sce` is a `SingleCellExperiment` object that has been processed with additional information 
+stored.
+
+```{r load-sce}
+data(sce)
+sce
+
+# rowData
+rowData(sce)
+
+# colData
+colData(sce)
+
+# metadata
+names(metadata(sce))
+```
+
+## edgeR's `TopTags` object
+
+`res_edger` is a `TopTags` object containing differential expression analysis results of the 
+`pasilla` dataset.
+
+```{r load-res_edger}
+data(res_edger)
+DataFrame(res_edger)
+```
+
+## DESeq2's `DESeqResults` object
+
+`res_deseq2` is a  `DESeqResults` object containing differential expression analysis results of 
+the `pasilla` dataset.
+
+```{r load-res_deseq2}
+data(res_deseq2)
+DataFrame(res_deseq2)
+```
+
+# Session information {-}
+
+```{r}
+sessionInfo()
+```

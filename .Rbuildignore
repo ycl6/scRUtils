@@ -1,0 +1,9 @@
+CODE_OF_CONDUCT.md
+CONTRIBUTING.md
+LICENSE.md
+NEWS.md
+README.md
+vignettes/index.Rmd
+^\.git*
+^\.gitignore$
+

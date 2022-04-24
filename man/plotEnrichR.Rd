@@ -42,7 +42,7 @@ Default is 16.}
 
 \item{prefix}{A string indicating the prefix of output file. When
 \code{prefix = NULL}, the plots are shown in the current graphics device using
-\link{grid}::rid.draw()]. The plots are saved to PDF files using \code{ggsave()}
+\code{\link[grid:grid.draw]{grid::grid.draw()}}. The plots are saved to PDF files using \code{ggsave()}
 when \code{prefix} is not \code{NULL}. Default is \code{NULL}.}
 
 \item{dir_path}{The directory path for exported PDF. The files are exported

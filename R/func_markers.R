@@ -587,7 +587,7 @@ runEnrichR <- function(object, dbs, site = "Enrichr", direction = "both", fdr = 
 #' Default is 16.
 #' @param prefix A string indicating the prefix of output file. When
 #' `prefix = NULL`, the plots are shown in the current graphics device using
-#' [grid]::rid.draw()]. The plots are saved to PDF files using `ggsave()`
+#' [grid::grid.draw()]. The plots are saved to PDF files using `ggsave()`
 #' when `prefix` is not `NULL`. Default is `NULL`.
 #' @param dir_path The directory path for exported PDF. The files are exported
 #' to the current working directory when `file_path = NULL`. Default is `NULL`.

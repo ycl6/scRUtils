@@ -196,6 +196,9 @@ choosePalette <- function(object, color = c30(), quiet = TRUE) {
         if (all(features %in% name)) { # found all matching named colours
           if (!quiet) inform(sprintf("Use '%d' matched colours from input palette.", n))
           return(color[features])
+        } else if (!any(features %in% name)) { # none of named colours matched, use first n colours
+          if (!quiet) inform(sprintf("Use '%d' colours from input palette.", n))
+          color <- color[1:n]
         } else {
           warn(sprintf(
             "Found '%d' colour(s) without matched name(s). Updating palette...",

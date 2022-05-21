@@ -598,7 +598,7 @@ plotSilhouette <- function(object, clusters, printDiff = TRUE, plot = TRUE,
 
     p <- if (add_mean) p + geom_hline(yintercept = mean.width, color = mean_color, size = mean_size, linetype = "dashed") else p
 
-    ncol <- ceiling(length(table(clusters)) / 25) # show 25 clusters in a column
+    ncol <- ceiling(length(table(clusters)) / 20) # show 20 clusters in a column
 
     # Return plot
     p + guides(color = guide_legend(

@@ -84,9 +84,9 @@
 .check_wholenum <- function(x, abort = TRUE) {
   .check_is.null(x)
   var <- deparse(substitute(x))
-  msg <- if (length(x) > 1L) "vector" else "scalar"
+  quant <- if (length(x) > 1L) "vector" else "scalar"
   if (!is.numeric(x) || !sum(x - floor(x)) == 0) {
-    if (abort) abort(sprintf("Argument `%s` is invalid, integer %s required.", var, msg)) else FALSE
+    if (abort) abort(sprintf("Argument `%s` is invalid, integer %s required.", var, quant)) else FALSE
   } else {
     TRUE
   }
@@ -108,7 +108,7 @@
 #' @importFrom rlang abort
 .check_assayname <- function(sce, exprs_by, return_value = FALSE) {
   var <- deparse(substitute(sce))
-  if (!exprs_by %in% assayNames(sce)) abort(sprintf("Cannot find assay named '%s' in `%s`.", exprs_by, sce))
+  if (!exprs_by %in% assayNames(sce)) abort(sprintf("Cannot find assay named '%s' in `%s`.", exprs_by, var))
   if (return_value) {
     return(assay(sce, exprs_by))
   }
@@ -127,10 +127,10 @@
       val <- .check_assayname(sce, exprs_by, return_value = TRUE)
       val <- val[x, ]
     } else {
-      abort(sprintf("Cannot find the specified `feature` in `%s`.", sce))
+      abort(sprintf("Cannot find the specified `feature` in `%s`.", var))
     }
   } else {
-    if (length(x) != ncol(sce)) abort(sprintf("`feature` and `ncol(%s)` have different lengths.", sce))
+    if (length(x) != ncol(sce)) abort(sprintf("`feature` and `ncol(%s)` have different lengths.", var))
     val <- x
     x <- "feature"
   }

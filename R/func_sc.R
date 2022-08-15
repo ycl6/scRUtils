@@ -565,9 +565,8 @@ plotSilhouette <- function(object, clusters, printDiff = TRUE, plot = TRUE,
                            mean_color = "firebrick", mean_size = 1, theme_size = 18) {
   sil.approx <- approxSilhouette(object, clusters)
   sil.data <- as.data.frame(sil.approx)
-  sil.data$closest <- factor(ifelse(sil.data$width > 0, clusters, sil.data$other))
-  sil.data$cluster <- factor(clusters)
-  sil.data$isSame <- sil.data$closest == sil.data$cluster
+  sil.data$closest <- factor(ifelse(sil.data$width > 0, sil.data$cluster, sil.data$other))
+  sil.data$isSame <- as.character(sil.data$closest) == as.character(sil.data$cluster)
 
   inform("Silhouette width summary:")
   print(summary(sil.data$width))

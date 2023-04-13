@@ -1172,9 +1172,8 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
 #' @param oneplot Logical scalar indicating whether to overlay expressions
 #' and produce a single plot or produces two side-by-side plots. Default is
 #' `TRUE`.
-#' @param by_exprs_values A string or integer scalar indicating which assay
-#' to obtain expression values from, for use in point aesthetics. Default is
-#' "logcounts".
+#' @param exprs_by A string or integer scalar indicating which assay to obtain
+#' expression values from, for use in point aesthetics. Default is "logcounts".
 #' @param same_scale Logical scalar indicating whether to use same scale limits
 #' on both genes. Default is `TRUE`.
 #' @param low_color A string containing the  color code to indicate the colour
@@ -1250,7 +1249,7 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
 #' )
 plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand", "Receptor"),
                              lr_color = c("blue", "red"), lr_sep = "-", oneplot = TRUE,
-                             by_exprs_values = "logcounts", same_scale = TRUE, low_color = "gray90",
+                             exprs_by = "logcounts", same_scale = TRUE, low_color = "gray90",
                              point_size = 2, point_alpha = 0.5, point_shape = 16,
                              guides_barwidth = NULL, guides_barheight = NULL,
                              text_by = NULL, theme_size = 18, ...) {
@@ -1268,8 +1267,8 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
     }
   }
 
-  gene1 <- retrieveCellInfo(sce, lr_pair[1], exprs_values = by_exprs_values)
-  gene2 <- retrieveCellInfo(sce, lr_pair[2], exprs_values = by_exprs_values)
+  gene1 <- retrieveCellInfo(sce, lr_pair[1], exprs_values = exprs_by)
+  gene2 <- retrieveCellInfo(sce, lr_pair[2], exprs_values = exprs_by)
 
   label1 <- paste0(lr_desc[1], "\n", gene1$name)
   label2 <- paste0(lr_desc[2], "\n", gene2$name)

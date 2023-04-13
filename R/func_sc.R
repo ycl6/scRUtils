@@ -658,8 +658,6 @@ plotSilhouette <- function(object, clusters, printDiff = TRUE, plot = TRUE,
 #'
 #' @export
 #' @import ggplot2
-#' @importFrom SingleCellExperiment colData
-#' @importFrom SingleCellExperiment colLabels
 #' @importFrom dplyr %>%
 #' @importFrom dplyr mutate
 #' @importFrom tibble rownames_to_column
@@ -930,7 +928,6 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #'
 #' @export
 #' @import ggplot2
-#' @importFrom SingleCellExperiment colData
 #' @importFrom scater plotReducedDim
 #' @examples
 #' # Load demo dataset

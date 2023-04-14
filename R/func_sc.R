@@ -33,6 +33,7 @@
 #'
 #' @export
 #' @import ggplot2
+#' @importFrom cowplot theme_cowplot
 #' @examples
 #' library(SingleCellExperiment)
 #'

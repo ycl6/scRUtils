@@ -519,6 +519,12 @@ runEnrichR <- function(object, dbs, site = "Enrichr", direction = "both", fdr = 
   type <- .get_res.type(object)
   .check_res.type(type, "is.list")
   .check_is.null(dbs)
+
+  # Attach enrichR
+  if (!"enrichR" %in% (.packages())) {
+    require(enrichR)
+  }
+
   inform(sprintf("Detecting %s input.", type))
 
   dir.type <- if (direction == "both") "up- and down-" else paste0(direction, "-")

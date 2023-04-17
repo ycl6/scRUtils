@@ -114,7 +114,7 @@
   }
 }
 
-#' @importFrom SingleCellExperiment colData
+#' @importFrom SummarizedExperiment colData
 #' @importFrom rlang abort
 .check_feature <- function(sce, x, exprs_by) {
   .check_is.null(x)

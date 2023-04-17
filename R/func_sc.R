@@ -1359,3 +1359,210 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
     )
   }
 }
+
+#' Create a boxplot of expression values
+#'
+#' This function produces a boxplot to show the gene expression intensity
+#' for a grouping of cells.
+#'
+#' @param sce A `SingleCellExperiment` object.
+#' @param features A character (or factor) vector of row names, a logical
+#' vector, or integer vector of indices specifying rows of `sce` to visualize.
+#' @param columns A character vector of col names, a logical vector, or
+#' integer vector of indices specifying the columns (i.e. subset of cells)
+#' of `sce` to visualize. By default, all columns (cells) are used.
+#' @param group_by A character vector of length no more than 2 indicating the
+#' field(s) of `colData(sce)` containing the grouping factor, e.g., cell types
+#' or clusters, to group cells by.
+#' @param color_by A character string of either `"Group"` or `"Detected"`
+#' indicating how to colour the boxplot. For the option of "Detected, the
+#' boxplot will be colour according to the proportion of cells with detectable
+#' expression values. "Default is "Detected".
+#' @param box_colors A character vector of colour codes indicating the colours
+#' of the cell groups, or a palette function that creates a vector of colours
+#' along a colour map. Default is `NULL`.
+#' @param detection_limit A numeric scalar indicating the value above which
+#' observations are deemed to be expressed. Default is 0.
+#' @param max_detected A numeric value indicating the cap on the proportion
+#' of detected expression values. Default is Default is `NULL`.
+#' @param exprs_by A string or integer scalar specifying which assay from
+#' `sce` to obtain expression values from, for use in boxplot aesthetics.
+#' Use `assayNames(sce)` to find all availavle assays in `sce`.
+#' Default is "logcounts".
+#' @param facet_ncol A numeric scalar indicating the number of columns to show
+#' in the facet wrap. Default is `NULL`.
+#' @param guides_barheight A numeric or a `grid::unit()` object specifying the
+#' width and height of the colourbar. Default is NULL.
+#' @param x.text_size A numeric scalar indicating the size of x axis labels.
+#' Default is `NULL`.
+#' @param x.text_angle A numeric scalar indicating the angle of x axis labels.
+#' Possible choices are 0, 45, 90. Default is 0.
+#' @param theme_size A numeric scalar indicating the base font size.
+#' Default is 18.
+#'
+#' @return A `ggplot` object
+#'
+#' @details
+#' The function creates a boxplot showing the expression of selected features
+#' in groups of cells.
+#'
+#' @author I-Hsuan Lin
+#'
+#' @name plotBox
+#'
+#' @export
+#' @import ggplot2
+#' @importFrom rlang abort
+#' @importFrom SummarizedExperiment assay
+#' @importFrom SummarizedExperiment colData
+#' @importFrom SummarizedExperiment colData<-
+#' @importFrom scuttle summarizeAssayByGroup
+#' @importFrom cowplot theme_cowplot
+#' @examples
+#' # Load demo dataset
+#' data(sce)
+#'
+#' # Group cells by "label"
+#' plotBox(sce, features = rownames(sce)[10:13], group_by = "label")
+#'
+#' # Show cells of labels A and B only
+#' keep <- sce$label %in% c("A","B")
+#' plotBox(sce, features = rownames(sce)[10:13], columns = keep, group_by = "label")
+#'
+#' # Group cells by "label" and "CellType", showing 2 features per row
+#' plotBox(sce, features = rownames(sce)[10:15], group_by = c("label","CellType"),
+#'   facet_ncol = 2, x.text_angle = 90, theme_size = 12)
+plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "Detected",
+                    box_colors = NULL, detection_limit = 0, max_detected = NULL,
+                    exprs_by = "logcounts", facet_ncol = NULL, guides_barheight = NULL,
+		    x.text_size = NULL, x.text_angle = 0, theme_size = 18) {
+  .is.sce(sce)
+  .check_assayname(sce, exprs_by)
+
+  # Check validity of group_by
+  if (!is.null(group_by)) {
+    if (!is.character(group_by) || length(group_by) > 2L) {
+      abort("Invalid values for 'group_by'.")
+    } else if (!all(as.character(group_by) %in% colnames(colData(sce)))) {
+      abort("Some 'group_by' columns not in `colData(sce)`.")
+    }
+  }
+
+  # Subset features (genes)
+  if (is.logical(features)) {
+    if (length(features) != nrow(sce)) abort("logical features index should be of length nrow(sce).")
+    features <- rownames(sce)[features]
+  } else if (is.numeric(features)) {
+    if (any(features > nrow(sce)) || any(features <= 0) || any(features != round(features))) abort("All features should be round numbers; > 0 and <= nrow(sce).")
+    features <- rownames(sce)[features]
+  } else if (is.character(features) || is.factor(features)) {
+    if (!all(as.character(features) %in% rownames(sce))) abort("Some features not in input sce.")
+  }
+  # if it's character, preserve the order
+  if (is.character(features)) {
+    features <- factor(features, levels = features)
+  }
+
+  # Subset columns (cells)
+  if (!is.null(columns)) {
+    if (is.logical(columns)) {
+      if (length(columns) != ncol(sce)) abort("logical columns index should be of length ncol(sce).")
+      columns <- colnames(sce)[columns]
+    } else if (is.numeric(columns)) {
+      if (any(columns > ncol(sce)) || any(columns <= 0) || any(columns != round(columns))) abort("All columns should be round numbers; > 0 and <= ncol(sce).")
+      columns <- colnames(sce)[columns]
+    } else if (is.character(columns) || is.factor(columns)) {
+      if (!all(as.character(columns) %in% colnames(sce))) abort("Some columns not in input sce.")
+    }
+  } else {
+    columns <- colnames(sce)
+  }
+
+  # Create new object
+  new <- sce[as.character(features), as.character(columns), drop = FALSE]
+  colData(new) <- droplevels(colData(new))
+
+  # Create expr data.frame
+  expr <- as.data.frame(t(assay(new, exprs_by)))
+
+  # Create coldata data.frame
+  if (is.null(group_by)) {
+    coldata <- data.frame(Group = rep("all", ncol(new))) # group all cells into one group
+  } else {
+    if (length(group_by) == 2L) {
+      # Concatenate values from 2 columns into a new column
+      coldata <- data.frame(Group = paste(colData(new)[, group_by[1]], colData(new)[, group_by[2]], sep = " - "),
+                            colData(new)[, group_by])
+      coldata$Group <- as.factor(coldata$Group)
+    } else {
+      coldata <- cbind(data.frame(Group = colData(new)[, group_by[1]]),
+		       data.frame(colData(new)[, group_by[1], drop = FALSE]))
+      if (!is.factor(coldata$Group)) coldata$Group <- as.factor(coldata$Group)
+    }
+  }
+
+  summarized <- summarizeAssayByGroup(assay(new, exprs_by), ids = coldata$Group, statistics = c("prop.detected"),
+                                      threshold = detection_limit)
+  prop <- assay(summarized, "prop.detected")
+  num <- data.frame(Symbol = rep(features, ncol(prop)),
+                    Group = rep(colnames(summarized), each = nrow(prop)),
+                    Detected = as.numeric(prop))
+
+  df <- cbind(expr, coldata)
+
+  long <- data.frame(Group = rep(df$Group, length(features)),
+                     Symbol = rep(features, each = nrow(df)),
+                     Expression = as.numeric(as.matrix(df[, features, drop = FALSE])))
+  long$Symbol <-  factor(long$Symbol, levels = features)
+
+  if (!is.null(group_by)) {
+    long <- cbind(long, data.frame(mapply(rep, df[, group_by, drop = FALSE], length(features))))
+    if (is.factor(df[, group_by[1]])) long[, group_by[1]] <- factor(long[, group_by[1]], levels = levels(df[, group_by[1]]))
+
+    if (length(group_by) == 2L) {
+      if (is.factor(df[, group_by[2]])) long[, group_by[2]] <- factor(long[, group_by[2]], levels = levels(df[, group_by[2]]))
+    }
+  }
+
+  # Combin long and num DataFrames
+  df <- merge(long, num, by = c("Group","Symbol"))
+  if (requireNamespace("gtools")) levels(df$Group) <- gtools::mixedsort(levels(df$Group))
+
+  # Add number of cells to group labels
+  freq <- data.frame(table(df$Group)/length(features))
+  levels(df$Group) <- paste0(freq$Var1, " (", freq$Freq, ")")
+
+  # Create plot
+  my.aes <- if (color_by == "Detected") aes_string(x = "Group", y = "Expression", color = "Detected", fill = "Detected")
+          else aes_string(x = "Group", y = "Expression", color = "Group", fill = "Group")
+
+  p <- ggplot(df, my.aes) + geom_boxplot(outlier.size = 0.5, alpha = 0.3) +
+          ylab(exprs_by) + theme_cowplot(theme_size)
+
+  p <- if (is.null(facet_ncol)) p + facet_wrap(~ Symbol, scales = "free_y")
+          else p + facet_wrap(~ Symbol, scales = "free_y", ncol = facet_ncol)
+
+  if (color_by == "Detected") {
+    if (is.null(box_colors)) {
+      p <- p + scale_colour_gradientn(colours = c("blue", "yellow", "red"), limits = c(0, 1)) +
+              scale_fill_gradientn(colours = c("blue", "yellow", "red"), limits = c(0, 1))
+    } else {
+      p <- p + scale_color_gradientn(colours = box_colors, limits = c(0, 1)) +
+	      scale_fill_gradientn(colours = box_colors, limits = c(0, 1))
+    }
+    p <- p + guides(color = guide_colourbar(title = "Proportion\nDetected", barheight = guides_barheight),
+                    fill = guide_colourbar(title = "Proportion\nDetected", barheight = guides_barheight))
+  } else {
+    if (!is.null(box_colors)) p <- p + scale_color_manual(values = box_colors) + scale_fill_manual(values = box_colors)
+  }
+
+  if (!is.null(x.text_size)) p <- p + theme(axis.text.x = element_text(size = x.text_size))
+
+  if (x.text_angle == 45) p <- p + theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1))
+  else if (x.text_angle == 90) p <- p + theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5))
+  else p <- p + theme(axis.text.x = element_text(angle = 0))
+
+  if (!is.null(group_by)) p <- p + xlab(paste(group_by, collapse = " + "))
+
+  return(p)
+}

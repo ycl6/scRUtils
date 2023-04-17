@@ -522,7 +522,7 @@ runEnrichR <- function(object, dbs, site = "Enrichr", direction = "both", fdr = 
 
   # Attach enrichR
   if (!"enrichR" %in% (.packages())) {
-    require(enrichR)
+    attachNamespace("enrichR")
   }
 
   inform(sprintf("Detecting %s input.", type))

@@ -1,7 +1,7 @@
 Package: scRUtils
 Type: Package
 Title: Single-Cell Sequencing Analysis Utilities
-Version: 0.1.4
+Version: 0.2.0
 Authors@R:
     person(
       given = "I-Hsuan",
@@ -33,6 +33,7 @@ Imports:
     rlang,
     scales,
     scater,
+    scuttle,
     stats,
     tibble,
     tidyr,

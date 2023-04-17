@@ -85,16 +85,10 @@ Default is 18.}
 ("center" or two-element numeric vector) or the justification according
 to the plot area when positioned outside the plot. Default is "center".}
 
-\item{guides_ncol}{An integer scalar indicating the desired
+\item{guides_ncol, guides_nrow}{An integer scalar indicating the desired
 number of column and row of discrete legends. Default is NULL.}
 
-\item{guides_nrow}{An integer scalar indicating the desired
-number of column and row of discrete legends. Default is NULL.}
-
-\item{guides_barwidth}{A numeric or a \code{grid::unit()}
-object specifying the width and height of the colourbar. Default is NULL.}
-
-\item{guides_barheight}{A numeric or a \code{grid::unit()}
+\item{guides_barwidth, guides_barheight}{A numeric or a \code{grid::unit()}
 object specifying the width and height of the colourbar. Default is NULL.}
 
 \item{guides_size}{An integer scalar indicating the desired size of the

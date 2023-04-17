@@ -12,7 +12,7 @@ plotReducedDimLR(
   lr_color = c("blue", "red"),
   lr_sep = "-",
   oneplot = TRUE,
-  by_exprs_values = "logcounts",
+  exprs_by = "logcounts",
   same_scale = TRUE,
   low_color = "gray90",
   point_size = 2,
@@ -47,9 +47,8 @@ separated. Default is "-".}
 and produce a single plot or produces two side-by-side plots. Default is
 \code{TRUE}.}
 
-\item{by_exprs_values}{A string or integer scalar indicating which assay
-to obtain expression values from, for use in point aesthetics. Default is
-"logcounts".}
+\item{exprs_by}{A string or integer scalar indicating which assay to obtain
+expression values from, for use in point aesthetics. Default is "logcounts".}
 
 \item{same_scale}{Logical scalar indicating whether to use same scale limits
 on both genes. Default is \code{TRUE}.}

@@ -48,6 +48,52 @@ library(scater)
 
 # General visualisations
 
+## Plot expression of groups of cells in boxplot
+
+The `plotBox()` function produces a boxplot to show the expression levels of selected genes 
+in groups of cells. It requires a `SingleCellExperiment` object (argument `sce`) and 
+`features` argument denoting the genes to plot. The `group_by` argument specify how the 
+cells are to be grouped. If none were provided, all cells will be grouped into 1 group.
+
+```{r plot-box1, fig.asp = 0.8}
+data(sce)
+
+# All cells in 1 group
+plotBox(sce, features = rownames(sce)[10:13])
+```
+
+By default, the boxes are coloured by the fraction of cells in a group expressing the given 
+gene. We can use `color_by` to colour by cell groups.
+
+```{r plot-box2, fig.asp = 0.8}
+# Group cells by "label", colour by cell groups, and change theme base size
+plotBox(sce, features = rownames(sce)[10:13], group_by = "label",
+        color_by = "Group", theme_size = 14)
+```
+
+It is also possible to show the results in a subset of cell using the `columns` argument.
+
+```{r plot-box3, fig.asp = 0.8}
+# Show cells of labels A and B only and change colour palette
+keep <- sce$label %in% c("A","B")
+plotBox(sce, features = rownames(sce)[10:13], group_by = "label", 
+	box_colors = rainbow(50), columns = keep)
+```
+
+A maximum of 2 grouping terms can be provided in the `group_by` argument, and cells will
+be grouped accordingly. Given the number of possible cell groups increases when combining 
+2 terms, we can adjust the number of columns to show in the plot, the size and angle of 
+the x-axis labels, and theme base size.
+
+```{r plot-box4, fig.asp = 0.8}
+table(sce$label, sce$CellType)
+
+# Group cells by "label" and "CellType", showing 2 features per row
+plotBox(sce, features = rownames(sce)[10:15], 
+	group_by = c("label","CellType"), box_colors = rainbow(50), 
+	facet_ncol = 2, x.text_angle = 90, x.text_size = 14)
+```
+
 ## Plot G2M against G1 scores from `cyclone` results
 
 The `plotCyclone()` function produces a scatter plot to show the predicted G1 and G2M scores 
@@ -71,8 +117,6 @@ The original function of the same name can be found in the legacy scater package
 (`r Githubpkg("davismcc/archive-scater")`) and is now deprecated.
 
 ```{r plot-freq-mean, fig.wide = TRUE, fig.asp = 0.6}
-data(sce)
-
 plotExprsFreqVsMean(sce, title = "Expression frequency vs. mean expression")
 ```
 

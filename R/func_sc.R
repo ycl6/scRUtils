@@ -1422,16 +1422,22 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
 #' # Load demo dataset
 #' data(sce)
 #'
-#' # Group cells by "label"
-#' plotBox(sce, features = rownames(sce)[10:13], group_by = "label")
+#' # All cells in 1 group
+#' plotBox(sce, features = rownames(sce)[10:13])
 #'
-#' # Show cells of labels A and B only
+#' # Group cells by "label", colour by cell groups, and change theme base size
+#' plotBox(sce, features = rownames(sce)[10:13], group_by = "label",
+#'   color_by = "Group", theme_size = 14)
+#'
+#' # Show cells of labels A and B only and change colour palette
 #' keep <- sce$label %in% c("A","B")
-#' plotBox(sce, features = rownames(sce)[10:13], columns = keep, group_by = "label")
+#' plotBox(sce, features = rownames(sce)[10:13], group_by = "label",
+#'   box_colors = rainbow(50), columns = keep)
 #'
 #' # Group cells by "label" and "CellType", showing 2 features per row
-#' plotBox(sce, features = rownames(sce)[10:15], group_by = c("label","CellType"),
-#'   facet_ncol = 2, x.text_angle = 90, theme_size = 12)
+#' plotBox(sce, features = rownames(sce)[10:15],
+#'   group_by = c("label","CellType"), box_colors = rainbow(50),
+#'   facet_ncol = 2, x.text_angle = 90, x.text_size = 14)
 plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "Detected",
                     box_colors = NULL, detection_limit = 0, max_detected = NULL,
                     exprs_by = "logcounts", facet_ncol = NULL, guides_barheight = NULL,

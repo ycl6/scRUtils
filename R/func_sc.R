@@ -1532,7 +1532,7 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
 
   # Combin long and num DataFrames
   df <- merge(long, num, by = c("Group","Symbol"))
-  if (requireNamespace("gtools")) levels(df$Group) <- gtools::mixedsort(levels(df$Group))
+  if (requireNamespace("gtools")) df$Group <- factor(df$Group, levels = gtools::mixedsort(levels(df$Group)))
 
   # Add number of cells to group labels
   freq <- data.frame(table(df$Group)/length(features))

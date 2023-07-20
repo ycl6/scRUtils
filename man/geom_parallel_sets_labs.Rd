@@ -20,10 +20,10 @@ geom_parallel_sets_labs(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
-\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
-at the top level of the plot. You must supply \code{mapping} if there is no plot
-mapping.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}} or
+\code{\link[ggplot2:aes_]{aes_()}}. If specified and \code{inherit.aes = TRUE} (the
+default), it is combined with the default mapping at the top level of the
+plot. You must supply \code{mapping} if there is no plot mapping.}
 
 \item{data}{The data to be displayed in this layer. There are three
 options:
@@ -85,7 +85,7 @@ inside the bars depicting the discrete categories.
 \details{
 A pull request of the nudge enhancement has been
 submitted to the \pkg{ggforce}'s GitHub repository,
-\url{https://github.com/thomasp85/ggforce/pull/260}, awaiting approval.
+\url{https://github.com/thomasp85/ggforce/pull/260}, added in v0.3.4.
 }
 \examples{
 library(ggforce)

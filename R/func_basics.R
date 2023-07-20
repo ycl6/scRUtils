@@ -242,7 +242,7 @@ choosePalette <- function(object, color = c30(), quiet = TRUE) {
 #'
 #' @details A pull request of the nudge enhancement has been
 #' submitted to the \pkg{ggforce}'s GitHub repository,
-#' \url{https://github.com/thomasp85/ggforce/pull/260}, awaiting approval.
+#' \url{https://github.com/thomasp85/ggforce/pull/260}, added in v0.3.4.
 #'
 #' @author I-Hsuan Lin
 #'
@@ -389,13 +389,25 @@ plotParallel <- function(lab1, lab2, labels = c("label1", "label2"), color = NUL
     levels(lab2) <- paste0("(", labels[2], ") ", levels(lab2))
   }
 
+  # Using old function from v0.3.3
+  # Bug fix in https://github.com/thomasp85/ggforce/pull/305
+  gather_set_data_fix <- function(data, x, id_name = 'id') {
+    if (is.numeric(x)) x <- names(data)[x]
+    data[[id_name]] <- seq_len(nrow(data))
+    do.call(rbind, lapply(x, function(n) {
+        data$x <- n
+        data$y <- data[[n]]
+        data
+    }))
+  }
+
   # Build data.frame
   data <- data.frame(lab1 = lab1, lab2 = lab2) %>%
     group_by(.data$lab1, .data$lab2) %>%
     tally() %>%
     ungroup() %>%
     drop_na() %>%
-    gather_set_data(1:2) %>%
+    gather_set_data_fix(1:2) %>% # Using old function from v0.3.3
     mutate(x = factor(.data$x, levels = c("lab1", "lab2")))
   data$y <- droplevels(data$y) # or mutate(data, y = fct_drop(y))
 

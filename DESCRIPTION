@@ -1,7 +1,7 @@
 Package: scRUtils
 Type: Package
 Title: Single-Cell Sequencing Analysis Utilities
-Version: 0.2.2
+Version: 0.3.0
 Authors@R:
     person(
       given = "I-Hsuan",
@@ -14,30 +14,32 @@ Description: Provides utility functions for performing single-cell data analyses
     focusing on providing additional plotting functionality, perform enrichR 
     analysis on list of objects, etc.
 Depends:
-    R (>= 4.1.3)
+    R (>= 4.1.0),
+    stats,
+    grDevices,
+    utils,
+    grid
 Imports:
     S4Vectors,
     SingleCellExperiment,
     SummarizedExperiment,
     bluster,
+    circlize (>= 0.4.12),
+    ComplexHeatmap (>= 2.13),
     cowplot,
     dplyr,
-    enrichR (>= 3.0),
+    enrichR (>= 3.1),
     ggbeeswarm,
     ggforce,
     ggnewscale,
     ggplot2,
     ggrepel,
-    grDevices,
-    grid,
     rlang,
     scales,
     scater,
     scuttle,
-    stats,
     tibble,
-    tidyr,
-    utils
+    tidyr
 Suggests:
     BiocStyle,
     DelayedMatrixStats,

@@ -37,10 +37,6 @@
 #' Default is `0`.
 #' @param column_names_rot A numeric value to set the rotation of column names.
 #' Default is `90`.
-#' @param row_names_centered A logical value to indicate whether to center the 
-#' row names. Default is `FALSE`.
-#' @param column_names_centered A logical value to indicate whether to center the 
-#' column names. Default is `FALSE`.
 #' @param fontsize A numeric value to set the overall font size. Default is `9`.
 #' @param cell_fontsize A numeric value to set the font size of the values in each 
 #' cell. Default is `9`.
@@ -129,7 +125,6 @@ netVis_heatmap <- function(obj, comparison = c(1, 2), measure = c("count", "weig
                            heatmap_colors_min = NULL, heatmap_colors_max = NULL,
                            cluster_rows = FALSE, cluster_columns = FALSE,
                            row_names_rot = 0, column_names_rot = 90,
-                           row_names_centered = FALSE, column_names_centered = FALSE,
                            fontsize = 9, cell_fontsize = 9, show_values = TRUE,
                            legend_side = "bottom", legend_direction = "horizontal",
                            legend_title = NULL, legend_title_position = "leftcenter",
@@ -340,6 +335,9 @@ netVis_heatmap <- function(obj, comparison = c(1, 2), measure = c("count", "weig
     ha <- ra <- NULL
     legend_title <- if(is.null(legend_title)) measure else legend_title
   }
+
+  column_names_centered <- if(column_names_rot == 0) TRUE else FALSE
+  row_names_centered <- if(row_names_rot == 90) TRUE else FALSE
 
   ht <- Heatmap(mat, top_annotation = ha, right_annotation = ra,
                 cluster_rows = cluster_rows, cluster_columns = cluster_columns,

@@ -61,7 +61,8 @@
 #' @param top_anno_height A `unit` object to set the height of the top (column) 
 #' annotations on the top. Default is `unit(2, "cm")`.
 #' @param anno_colors A character vector to indicate the colours used to fill the 
-#' box plots showing the two datasets. Default is `c("#66c2a5", "#fc8d62")`.
+#' box plots showing the two datasets, or a single colour used to fill the bar plots 
+#' showing a single dataset. Default is `c("#66c2a5", "#fc8d62")`.
 #' @param anno_legend_ncol A integer to set the number of columns in the legend grids. 
 #' Default is `1`.
 #' @param anno_legend_side A string to indicate the side to put annotation legend.
@@ -329,16 +330,26 @@ netVis_heatmap <- function(obj, comparison = c(1, 2), measure = c("count", "weig
                         annotation_name_gp = gpar(fontsize = fontsize))
     ra@anno_list$measure@label <- measure
 
-    # Set up main heatmap
     legend_title <- if(is.null(legend_title)) bquote(Delta ~ .(measure)) else legend_title
   } else {
-    ha <- ra <- NULL
+    # Set up heatmap annotations (barplots showing total)
+    fill <- anno_colors[1]
+    ha <- HeatmapAnnotation(measure = anno_barplot(colSums(mat), baseline = 0, gp = gpar(fill = fill)),
+                            height = top_anno_height, show_annotation_name = FALSE)
+    ra <- rowAnnotation(measure = anno_barplot(rowSums(mat), baseline = 0, gp = gpar(fill = fill)),
+                        width = right_anno_width, show_annotation_name = TRUE,
+                        annotation_name_offset = top_anno_height/2,
+                        annotation_name_side = "top", annotation_name_rot = 0,
+                        annotation_name_gp = gpar(fontsize = fontsize))
+    ra@anno_list$measure@label <- paste("total\n", measure)
+
     legend_title <- if(is.null(legend_title)) measure else legend_title
   }
 
   column_names_centered <- if(column_names_rot == 0) TRUE else FALSE
   row_names_centered <- if(row_names_rot == 90) TRUE else FALSE
 
+  # Set up main heatmap
   ht <- Heatmap(mat, top_annotation = ha, right_annotation = ra,
                 cluster_rows = cluster_rows, cluster_columns = cluster_columns,
                 row_title = row_title, column_title = plot_title,

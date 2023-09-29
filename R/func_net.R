@@ -2,8 +2,8 @@
 #'
 #' This function check the cell type compositions in 2 input CellChat objects,
 #' use the `liftCellChat` function to update the slot related to the cell-cell 
-#' communication network, including slots object@net, object@netP and object@idents, 
-#' and both will have same cell labels.
+#' communication network, including slots `object@net`, `object@netP` and 
+#' `object@idents`, thus both objects will have same cell labels.
 #'
 #' @param x1 A CellChat object containing one dataset.
 #' @param x2 A CellChat object containing one dataset.
@@ -43,10 +43,10 @@ check_and_liftCC <- function(x1, x2) {
 
 #' Visualization of network using heatmap
 #'
-#' This heatmap can be used to show number of interactions, interaction strength, 
-#' communication probabilities of a chosen pathway in a single dataset 
-#' (defined by `pathway =`), as well as the differential comparison of these 
-#' three measures between two datasets.
+#' This function produces heatmap that shows the number of interactions, interaction 
+#' strength, or communication probabilities of a chosen pathway in a single dataset 
+#' (defined by `pathway =`), as well as showing the differential comparison of the 
+#' chosen measures between two datasets.
 #'
 #' When showing differential comparison:
 #' * Using the default `heatmap_colors`, the red (or blue) represents increased 

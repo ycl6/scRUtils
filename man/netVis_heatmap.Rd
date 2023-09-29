@@ -153,10 +153,10 @@ When \code{draw = FALSE}, the function retuns a grob (\code{gTree}) object made 
 data values.
 }
 \description{
-This heatmap can be used to show number of interactions, interaction strength,
-communication probabilities of a chosen pathway in a single dataset
-(defined by \verb{pathway =}), as well as the differential comparison of these
-three measures between two datasets.
+This function produces heatmap that shows the number of interactions, interaction
+strength, or communication probabilities of a chosen pathway in a single dataset
+(defined by \verb{pathway =}), as well as showing the differential comparison of the
+chosen measures between two datasets.
 }
 \details{
 When showing differential comparison:

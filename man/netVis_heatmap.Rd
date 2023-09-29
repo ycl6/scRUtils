@@ -16,8 +16,6 @@ netVis_heatmap(
   cluster_columns = FALSE,
   row_names_rot = 0,
   column_names_rot = 90,
-  row_names_centered = FALSE,
-  column_names_centered = FALSE,
   fontsize = 9,
   cell_fontsize = 9,
   show_values = TRUE,
@@ -78,12 +76,6 @@ Default is \code{0}.}
 \item{column_names_rot}{A numeric value to set the rotation of column names.
 Default is \code{90}.}
 
-\item{row_names_centered}{A logical value to indicate whether to center the
-row names. Default is \code{FALSE}.}
-
-\item{column_names_centered}{A logical value to indicate whether to center the
-column names. Default is \code{FALSE}.}
-
 \item{fontsize}{A numeric value to set the overall font size. Default is \code{9}.}
 
 \item{cell_fontsize}{A numeric value to set the font size of the values in each
@@ -119,7 +111,8 @@ annotation on the right. Default is \code{unit(2, "cm")}.}
 annotations on the top. Default is \code{unit(2, "cm")}.}
 
 \item{anno_colors}{A character vector to indicate the colours used to fill the
-box plots showing the two datasets. Default is \code{c("#66c2a5", "#fc8d62")}.}
+box plots showing the two datasets, or a single colour used to fill the bar plots
+showing a single dataset. Default is \code{c("#66c2a5", "#fc8d62")}.}
 
 \item{anno_legend_ncol}{A integer to set the number of columns in the legend grids.
 Default is \code{1}.}

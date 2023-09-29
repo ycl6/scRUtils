@@ -1,3 +1,46 @@
+#' Check and lift cell type compositions between 2 CellChat objects
+#'
+#' This function check the cell type compositions in 2 input CellChat objects,
+#' use the `liftCellChat` function to update the slot related to the cell-cell 
+#' communication network, including slots object@net, object@netP and object@idents, 
+#' and both will have same cell labels.
+#'
+#' @param x1 A CellChat object containing one dataset.
+#' @param x2 A CellChat object containing one dataset.
+#' @return A list containing updated CellChat objects.
+#'
+#' @details
+#'
+#' @author I-Hsuan Lin
+#'
+#' @name check_and_liftCC
+#'
+#' @export
+#' @importFrom CellChat liftCellChat
+check_and_liftCC <- function(x1, x2) {
+    id1 <- levels(x1@idents)
+    id2 <- levels(x2@idents)
+    if(identical(id1, id2)) {
+        message("Identical cell groups, lift not required")
+    } else {
+        print(sprintf("1st object: %s", paste(id1, collapse = ", ")))
+        print(sprintf("2nd object: %s", paste(id2, collapse = ", ")))
+        if(all(id1 %in% id2)) { # id1 is missing some idents
+            message("Different cell groups. Run `liftCellChat` on 1st object")
+            x1 <- liftCellChat(x1, levels(x2@idents))
+        } else if(all(id2 %in% id1)) { # id2 is missing some idents
+            message("Different cell groups. Run `liftCellChat` on 2nd object")
+            x2 <- liftCellChat(x2, levels(x1@idents))
+        } else {
+            # Both have different idents
+            message("Different cell groups. Run `liftCellChat` on both objects")
+            x1 <- liftCellChat(x1, levels(x2@idents))
+            x2 <- liftCellChat(x2, levels(x1@idents))
+        }
+    }
+    list(x1, x2)
+}
+
 #' Visualization of network using heatmap
 #'
 #' This heatmap can be used to show number of interactions, interaction strength, 

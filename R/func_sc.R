@@ -1500,6 +1500,16 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
       coldata <- data.frame(Group = paste(colData(new)[, group_by[1]], colData(new)[, group_by[2]], sep = " - "),
                             colData(new)[, group_by])
       coldata$Group <- as.factor(coldata$Group)
+
+      # Use original orders on 'Group' if possible
+      if(is.factor(colData(new)[, group_by[1]]) & is.factor(colData(new)[, group_by[2]])) {
+        new_order <- paste(rep(levels(colData(new)[, group_by[1]]), each = length(levels(colData(new)[, group_by[2]]))), 
+			   levels(colData(new)[, group_by[2]]), sep = " - ")
+        new_order <- new_order[new_order %in% levels(coldata$Group)]
+        coldata$Group <- factor(coldata$Group, levels = new_order)
+      } else {
+        if (requireNamespace("gtools")) coldata$Group <- factor(coldata$Group, levels = gtools::mixedsort(levels(coldata$Group)))
+      }
     } else {
       coldata <- cbind(data.frame(Group = colData(new)[, group_by[1]]),
 		       data.frame(colData(new)[, group_by[1], drop = FALSE]))
@@ -1532,7 +1542,7 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
 
   # Combin long and num DataFrames
   df <- merge(long, num, by = c("Group","Symbol"))
-  if (requireNamespace("gtools")) df$Group <- factor(df$Group, levels = gtools::mixedsort(levels(df$Group)))
+  df$Group <- factor(df$Group, levels = levels(coldata$Group))
 
   # Add number of cells to group labels
   freq <- data.frame(table(df$Group)/length(features))

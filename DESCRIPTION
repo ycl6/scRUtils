@@ -1,7 +1,7 @@
 Package: scRUtils
 Type: Package
 Title: Single-Cell Sequencing Analysis Utilities
-Version: 0.3.3
+Version: 0.3.4
 Authors@R:
     person(
       given = "I-Hsuan",
@@ -42,6 +42,7 @@ Imports:
     tidyr
 Suggests:
     BiocStyle,
+    CellChat,
     DelayedMatrixStats,
     Matrix,
     DESeq2,

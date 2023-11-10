@@ -16,9 +16,9 @@ A list containing updated CellChat objects.
 }
 \description{
 This function check the cell type compositions in 2 input CellChat objects,
-use the \code{liftCellChat} function to update the slot related to the cell-cell
-communication network, including slots \code{object@net}, \code{object@netP} and
-\code{object@idents}, thus both objects will have same cell labels.
+use the \code{liftCellChat} function from CellChat to update the slot related to the
+cell-cell communication network, including slots \code{object@net}, \code{object@netP}
+and \code{object@idents}, so that both objects will have same cell labels.
 }
 \author{
 I-Hsuan Lin

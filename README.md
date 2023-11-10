@@ -9,7 +9,21 @@ used in our in-house scRNA-seq processing workflow.
 
 ## Installation
 
-The package is current available only on [GitHub](https://github.com/ycl6/scRUtils).
+First, install Bioconductor packages that `scRUtils` depends on in a `conda` environment or
+in R using the `BiocManager::install` function.
+
+``` sh
+conda install -c bioconda bioconductor-scuttle bioconductor-scater bioconductor-complexheatmap \
+bioconductor-bluster bioconductor-summarizedexperiment bioconductor-singlecellexperiment bioconductor-s4vectors
+```
+
+``` r
+BiocManager::install(c("scuttle","scater","ComplexHeatmap","bluster","SummarizedExperiment",
+                       "SingleCellExperiment","S4Vectors"))
+```
+
+The package is current available only on [GitHub](https://github.com/ycl6/scRUtils), 
+so please use `devtools::install_github` or `remotes::install_github` function to install it.
 
 ``` r
 devtools::install_github("ycl6/scRUtils")

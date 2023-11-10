@@ -875,12 +875,17 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #' of the features, or a palette function that creates a vector of colours
 #' along a colour map. Default is `NULL`, and use [choosePalette()] to
 #' select a palette.
-#' @param color_breaks One of:
+#' @param color_breaks For colouring continuous data, one of:
 #'   - `NULL` for no breaks
 #'   - `waiver()` for the default breaks (the scale limits)
 #'   - A character vector of breaks
 #'   - A function that takes the limits as input and returns breaks
 #'     as output
+#' @param color_limits For colouring continuous data, one of:
+#'   - `NULL` to use the default scale range
+#'   - A numeric vector of length two providing limits of the scale. Use `NA` to 
+#'     refer to the existing minimum or maximum
+#'   - A function that accepts the existing (automatic) limits and returns new limits.
 #' @param exprs_by A string or integer scalar specifying which assay from
 #' `sce` to obtain expression values from, for use in point aesthetics. Use
 #' `assayNames(sce)` to find all availavle assays in `sce`. Default is
@@ -930,6 +935,7 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #' @export
 #' @import ggplot2
 #' @importFrom scater plotReducedDim
+#' @importFrom scales squish
 #' @examples
 #' # Load demo dataset
 #' data(sce)
@@ -946,7 +952,7 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #'   feat_desc = "DKD62 Expression", guides_barheight = 15
 #' )
 plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, feat_color = NULL,
-                           color_breaks = waiver(), exprs_by = "logcounts", text_by = NULL,
+                           color_breaks = waiver(), color_limits = NULL, exprs_by = "logcounts", text_by = NULL,
                            point_size = 2, point_alpha = 0.5, theme_size = 18,
                            legend_pos = "right", legend_just = "center",
                            guides_ncol = NULL, guides_nrow = NULL,
@@ -995,7 +1001,7 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
           override.aes = list(size = guides_size, alpha = 1)
         ))
     } else {
-      p <- p + scale_color_gradientn(colours = color, breaks = color_breaks) +
+      p <- p + scale_color_gradientn(colours = color, breaks = color_breaks, limits = color_limits, oob = squish) +
         guides(color = guide_colorbar(
           title = NULL, barwidth = guides_barwidth, barheight = guides_barheight,
           frame.colour = "black", ticks.colour = "black"
@@ -1070,8 +1076,9 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 #'   feat_desc = "DKD62 Expression", guides_barwidth = 15
 #' )
 plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_desc = NULL,
-                            feat_color = NULL, color_breaks = waiver(), exprs_by = "logcounts",
-                            text_by = NULL, point_size = 1, point_alpha = 0.5,
+                            feat_color = NULL, color_breaks = waiver(), color_limits = NULL,
+                            exprs_by = "logcounts", text_by = NULL,
+                            point_size = 1, point_alpha = 0.5,
                             theme_size = 18, legend_pos = "right", legend_just = "center",
                             guides_ncol = NULL, guides_nrow = NULL,
                             guides_barwidth = NULL, guides_barheight = NULL,
@@ -1086,8 +1093,9 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
 
   p1 <- plotProjection(sce, feature,
     dimname = dimnames[1], feat_desc = feat_desc,
-    feat_color = feat_color, color_breaks = color_breaks, exprs_by = exprs_by,
-    text_by = text_by, point_size = point_size, point_alpha = point_alpha,
+    feat_color = feat_color, color_breaks = color_breaks, color_limits = color_limits,
+    exprs_by = exprs_by, text_by = text_by,
+    point_size = point_size, point_alpha = point_alpha,
     theme_size = theme_size, legend_pos = "none", legend_just = legend_just,
     guides_ncol = guides_ncol, guides_nrow = guides_nrow,
     guides_barwidth = guides_barwidth, guides_barheight = guides_barheight,
@@ -1097,8 +1105,9 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
 
   p2 <- plotProjection(sce, feature,
     dimname = dimnames[2], feat_desc = feat_desc,
-    feat_color = feat_color, color_breaks = color_breaks, exprs_by = exprs_by,
-    text_by = text_by, point_size = point_size, point_alpha = point_alpha,
+    feat_color = feat_color, color_breaks = color_breaks, color_limits = color_limits,
+    exprs_by = exprs_by, text_by = text_by,
+    point_size = point_size, point_alpha = point_alpha,
     theme_size = theme_size, legend_pos = "none", legend_just = legend_just,
     guides_ncol = guides_ncol, guides_nrow = guides_nrow,
     guides_barwidth = guides_barwidth, guides_barheight = guides_barheight,

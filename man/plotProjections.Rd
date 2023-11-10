@@ -11,6 +11,7 @@ plotProjections(
   feat_desc = NULL,
   feat_color = NULL,
   color_breaks = waiver(),
+  color_limits = NULL,
   exprs_by = "logcounts",
   text_by = NULL,
   point_size = 1,
@@ -52,13 +53,21 @@ of the features, or a palette function that creates a vector of colours
 along a colour map. Default is \code{NULL}, and use \code{\link[=choosePalette]{choosePalette()}} to
 select a palette.}
 
-\item{color_breaks}{One of:
+\item{color_breaks}{For colouring continuous data, one of:
 \itemize{
 \item \code{NULL} for no breaks
 \item \code{waiver()} for the default breaks (the scale limits)
 \item A character vector of breaks
 \item A function that takes the limits as input and returns breaks
 as output
+}}
+
+\item{color_limits}{For colouring continuous data, one of:
+\itemize{
+\item \code{NULL} to use the default scale range
+\item A numeric vector of length two providing limits of the scale. Use \code{NA} to
+refer to the existing minimum or maximum
+\item A function that accepts the existing (automatic) limits and returns new limits.
 }}
 
 \item{exprs_by}{A string or integer scalar specifying which assay from

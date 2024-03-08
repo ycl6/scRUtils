@@ -405,7 +405,7 @@ exportResList <- function(object, concatenate = FALSE, col_anno = NULL, directio
       }
 
       inform(sprintf("Creating file: %s", filename))
-      dir_path <- .build.path(dir_path)
+      dir_path <- .build_path(dir_path)
       write.table(df,
         file = file.path(dir_path, filename), sep = "\t", quote = F,
         row.names = F, col.names = T
@@ -421,7 +421,7 @@ exportResList <- function(object, concatenate = FALSE, col_anno = NULL, directio
     }
 
     inform(sprintf("Creating a concatenated file: %s", filename))
-    dir_path <- .build.path(dir_path)
+    dir_path <- .build_path(dir_path)
     write.table(df,
       file = file.path(dir_path, filename), sep = "\t", quote = F,
       row.names = F, col.names = T
@@ -654,7 +654,7 @@ plotEnrichR <- function(object, db, showTerms = 20, numChar = 50, y = "Count",
   .check_res.type(type, "enrichr")
   .check_is.null(db)
   if (!is.null(prefix)) {
-    dir_path <- .build.path(dir_path)
+    dir_path <- .build_path(dir_path)
   }
 
   for (group in names(object)) {
@@ -748,7 +748,7 @@ printEnrichR <- function(object, prefix = "enrichr", showTerms = NULL,
   type <- .get_res.type(object)
   .check_res.type(type, "enrichr")
   .check_wholenum(columns)
-  dir_path <- .build.path(dir_path)
+  dir_path <- .build_path(dir_path)
 
   for (group in names(object)) {
     x <- object[[group]]

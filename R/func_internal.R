@@ -17,7 +17,7 @@
 
 #' @importFrom rlang abort
 # Build export path
-.build.path <- function(dir_path = NULL) {
+.build_path <- function(dir_path = NULL) {
   if (is.null(dir_path)) {
     dir_path <- getwd()
   } else {
@@ -26,16 +26,21 @@
   dir_path
 }
 
+# Check if package installed
+.check_pkg <- function(pkg = NULL) {
+  ifelse(try(find.package(pkg), silent = TRUE) != "", TRUE, FALSE)
+}
+
 #' @importFrom rlang abort
 # Calculate row means
 .clac_rowMeans <- function(x) {
-  if (requireNamespace("Matrix")) Matrix::rowMeans(x) else abort("Requires CRAN package 'Matrix'.")
+  if(.check_pkg("Matrix")) Matrix::rowMeans(x) else abort("Requires CRAN package 'Matrix'.")
 }
 
 #' @importFrom rlang abort
 # Calculate row variance
 .clac_rowVars <- function(x) {
-  if (requireNamespace("DelayedMatrixStats")) DelayedMatrixStats::rowVars(x) else abort("Requires Bioconductor package 'DelayedMatrixStats'.")
+  if(.check_pkg("DelayedMatrixStats")) DelayedMatrixStats::rowVars(x) else abort("Requires Bioconductor package 'DelayedMatrixStats'.")
 }
 
 #' @importFrom utils tail
@@ -226,7 +231,7 @@
 # Convert findMarkers/DESeq2/edgeR results to DataFrame
 .res2df <- function(x, type) {
   if (type == "edgeR") {
-    if (requireNamespace("edgeR")) {
+    if(.check_pkg("edgeR")) {
       if (attr(type, "obj") == "TopTags") {
         as.data.frame(x$table)
       } else {
@@ -236,7 +241,7 @@
       abort("Requires Bioconductor package 'edgeR'.")
     }
   } else if (type == "DESeq2") {
-    if (requireNamespace("DESeq2")) {
+    if(.check_pkg("DESeq2")) {
       df <- as.data.frame(x)
     } else {
       abort("Requires Bioconductor package 'DESeq2'.")

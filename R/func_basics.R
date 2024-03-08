@@ -174,7 +174,7 @@ choosePalette <- function(object, color = c30(), quiet = TRUE) {
   if (is.factor(object)) {
     features <- levels(object)
   } else {
-    if (requireNamespace("gtools")) {
+    if(.check_pkg("gtools")) {
       features <- gtools::mixedsort(unique(object))
     } else {
       features <- sort(unique(as.character(object)))

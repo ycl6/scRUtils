@@ -9,7 +9,7 @@
 #' @param x2 A CellChat object containing one dataset.
 #' @return A list containing updated CellChat objects.
 #'
-#' @details
+#' @details NA
 #'
 #' @author I-Hsuan Lin
 #'
@@ -22,7 +22,7 @@ check_and_liftCC <- function(x1, x2) {
     if(identical(id1, id2)) {
         message("Identical cell groups, lift not required")
     } else {
-        if (!requireNamespace("CellChat")) abort("Requires R package 'CellChat'.")
+        if(!.check_pkg("CellChat")) abort("Requires R package 'CellChat'.")
         print(sprintf("1st object: %s", paste(id1, collapse = ", ")))
         print(sprintf("2nd object: %s", paste(id2, collapse = ", ")))
         if(all(id1 %in% id2)) { # id1 is missing some idents

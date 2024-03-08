@@ -6,7 +6,6 @@
 #'
 #' @author I-Hsuan Lin
 #'
-#' @docType package
 #' @keywords package
 NULL
 

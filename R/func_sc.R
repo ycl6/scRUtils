@@ -687,7 +687,7 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
 
   dbl.clu <- row.names(dbl)
   if (is.null(clusters)) {
-    if (requireNamespace("gtools")) {
+    if(.check_pkg("gtools")) {
       label <- gtools::mixedsort(dbl.clu)
     } else if (.check_wholenum(dbl.clu)) {
       label <- sort(as.numeric(dbl.clu))
@@ -1517,7 +1517,7 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
         new_order <- new_order[new_order %in% levels(coldata$Group)]
         coldata$Group <- factor(coldata$Group, levels = new_order)
       } else {
-        if (requireNamespace("gtools")) coldata$Group <- factor(coldata$Group, levels = gtools::mixedsort(levels(coldata$Group)))
+        if(.check_pkg("gtools")) coldata$Group <- factor(coldata$Group, levels = gtools::mixedsort(levels(coldata$Group)))
       }
     } else {
       coldata <- cbind(data.frame(Group = colData(new)[, group_by[1]]),

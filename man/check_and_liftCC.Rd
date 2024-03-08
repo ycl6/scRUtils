@@ -20,6 +20,9 @@ use the \code{liftCellChat} function from CellChat to update the slot related to
 cell-cell communication network, including slots \code{object@net}, \code{object@netP}
 and \code{object@idents}, so that both objects will have same cell labels.
 }
+\details{
+NA
+}
 \author{
 I-Hsuan Lin
 }

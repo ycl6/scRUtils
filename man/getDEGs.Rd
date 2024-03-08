@@ -76,7 +76,7 @@ getDEGs(res_deseq2, direction = "up", max = 250)
 getDEGs(res_edger, fdr = 0.1, column_by = "external_gene_name")
 }
 \seealso{
-\code{\link[edgeR:exactTest]{edgeR::exactTest()}}, \code{\link[edgeR:glmfit]{edgeR::glmLRT()}}, \code{\link[edgeR:glmTreat]{edgeR::glmTreat()}},
+\code{\link[edgeR:exactTest]{edgeR::exactTest()}}, \code{\link[edgeR:glmLRT]{edgeR::glmLRT()}}, \code{\link[edgeR:glmTreat]{edgeR::glmTreat()}},
 \code{\link[edgeR:glmQLFTest]{edgeR::glmQLFTest()}}, \code{\link[edgeR:topTags]{edgeR::topTags()}}, \code{\link[DESeq2:results]{DESeq2::results()}}
 }
 \author{

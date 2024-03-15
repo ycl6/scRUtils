@@ -1498,7 +1498,8 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
   colData(new) <- droplevels(colData(new))
 
   # Create expr data.frame
-  expr <- as.data.frame(t(assay(new, exprs_by)))
+  mat <- if(class(mat) == "dgCMatrix") as.matrix(assay(new, exprs_by)) else assay(new, exprs_by)
+  expr <- as.data.frame(t(mat))
 
   # Create coldata data.frame
   if (is.null(group_by)) {

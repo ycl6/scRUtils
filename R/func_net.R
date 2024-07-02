@@ -203,13 +203,15 @@ netVis_heatmap <- function(obj, comparison = c(1, 2), measure = c("count", "weig
         c2 <- comparison[2]
       }
     }
+    sample.names <- sample.names[comparison]
   } else {
     sample.names <- measure
   }
 
   # Create a named colour vector
   if(!is.null(names(anno_colors))) {
-    if(sample.names %in% names(anno_colors)) {
+
+    if(all(sample.names %in% names(anno_colors))) {
       anno_colors <- anno_colors[sample.names]
     } else {
       names(anno_colors) <- NULL
@@ -220,7 +222,7 @@ netVis_heatmap <- function(obj, comparison = c(1, 2), measure = c("count", "weig
     if(type == "multi") {
       names(anno_colors) <- sample.names
     } else {
-      names(anno_colors) <- measure
+      names(anno_colors[1]) <- measure
     }
   }
 

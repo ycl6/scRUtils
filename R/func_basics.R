@@ -440,3 +440,51 @@ plotParallel <- function(lab1, lab2, labels = c("label1", "label2"), color = NUL
   # Return plot
   p + scale_fill_manual(values = choosePalette(data$y, color))
 }
+
+#' Retrieve the legend of a plot
+#'
+#' This function extracts just the legend from a ggplot.
+#'
+#' @param object A `ggplot` or `gtable` from which to retrieve the legend.
+#'
+#' @return A `gtable` object holding just the legend or \code{NULL} if there is no legend.
+#'
+#' @details The `get_legend` function from the cowplot package stopped working properly 
+#' with ggplot2 v3.5.0. A modified function was contributed by Teun van den Brand 
+#' (teunbrand) on cowplot's GitHub Issues and should work with the newer version of ggplot2. 
+#' Please refer to \url{https://github.com/wilkelab/cowplot/issues/202} on the discussion of 
+#' this bug and fixes.
+#'
+#' @name get_Legend
+#'
+#' @export
+#' @importFrom ggplot2 ggplotGrob
+#' @examples
+#' library(ggplot2)
+#'
+#' p <- ggplot(mpg, aes(displ, hwy, colour = factor(cyl), shape = factor(year))) +
+#'   geom_point() + guides(shape = guide_legend(position = "bottom"))
+#'
+#' plot(get_Legend(p))
+get_Legend <- function(plot, legend = NULL) {
+  gt <- ggplotGrob(plot)
+
+  pattern <- "guide-box"
+  if (!is.null(legend)) {
+    pattern <- paste0(pattern, "-", legend)
+  }
+
+  indices <- grep(pattern, gt$layout$name)
+
+  not_empty <- !vapply(
+    gt$grobs[indices],
+    inherits, what = "zeroGrob",
+    FUN.VALUE = logical(1)
+  )
+  indices <- indices[not_empty]
+
+  if (length(indices) > 0) {
+    return(gt$grobs[[indices[1]]])
+  }
+  return(NULL)
+}

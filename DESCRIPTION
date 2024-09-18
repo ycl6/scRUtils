@@ -1,7 +1,7 @@
 Package: scRUtils
 Type: Package
 Title: Single-Cell Sequencing Analysis Utilities
-Version: 0.3.6
+Version: 0.3.7
 Authors@R:
     person(
       given = "I-Hsuan",
@@ -56,4 +56,4 @@ VignetteBuilder: knitr
 License: GPL (>= 3)
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2

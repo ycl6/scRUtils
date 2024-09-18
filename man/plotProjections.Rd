@@ -143,10 +143,9 @@ pre-calculated low-dimensional projection (such as UMAP and t-SNE) in
 a compound figure.
 }
 \details{
-The function uses \code{plotProjection()} to create 2 base plots, then
-\code{get_legend()} from the \pkg{cowplot} package to produce a shared legend
-and \code{plot_grid()} from \pkg{cowplot} to create a compound figure with
-legend placed at the desired position as specified by \code{legend_pos}.
+The function uses \code{plotProjection()} to create 2 base plots, then \code{get_Legend()}
+to produce a shared legend and \code{plot_grid()} from \pkg{cowplot} to create a compound
+figure with legend placed at the desired position as specified by \code{legend_pos}.
 }
 \examples{
 # Load demo dataset

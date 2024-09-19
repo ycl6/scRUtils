@@ -1043,10 +1043,9 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 #' @return A \pkg{ggplot2} plot with an object of class `c("gg", "ggplot")`
 #'
 #' @details
-#' The function uses `plotProjection()` to create 2 base plots, then
-#' `get_legend()` from the \pkg{cowplot} package to produce a shared legend
-#' and `plot_grid()` from \pkg{cowplot} to create a compound figure with
-#' legend placed at the desired position as specified by `legend_pos`.
+#' The function uses `plotProjection()` to create 2 base plots, then `get_Legend()` 
+#' to produce a shared legend and `plot_grid()` from \pkg{cowplot} to create a compound 
+#' figure with legend placed at the desired position as specified by `legend_pos`.
 #'
 #' @author I-Hsuan Lin
 #'
@@ -1058,7 +1057,6 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 #' @import ggplot2
 #' @importFrom rlang warn
 #' @importFrom rlang abort
-#' @importFrom cowplot get_legend
 #' @importFrom cowplot plot_grid
 #' @examples
 #' # Load demo dataset
@@ -1137,7 +1135,7 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
         frame.colour = "black", ticks.colour = "black"
       ))
     }
-    legend <- get_legend(tmp + theme(legend.position = legend_pos, legend.justification = legend_just))
+    legend <- get_Legend(tmp + theme(legend.position = legend_pos, legend.justification = legend_just))
   }
 
   if (legend_pos == "right") {

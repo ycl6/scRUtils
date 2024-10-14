@@ -17,6 +17,8 @@ plotProjection(
   point_size = 2,
   point_alpha = 0.5,
   theme_size = 18,
+  show_na = FALSE,
+  na.value = "grey50",
   legend_pos = "right",
   legend_just = "center",
   guides_ncol = NULL,
@@ -82,6 +84,11 @@ transparency. Default is 0.5.}
 
 \item{theme_size}{A numeric scalar indicating the base font size.
 Default is 18.}
+
+\item{show_na}{Logical scalar indicating whether to show \code{NA} values.
+Default is \code{FALSE}.}
+
+\item{na.value}{Colour to use for missing values. Default is \code{"grey50"}.}
 
 \item{legend_pos}{The position of legends ("none", "left", "right",
 "bottom","top". Use "none" to disable plot legend. Default is "right".}

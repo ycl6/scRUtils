@@ -898,6 +898,9 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #' transparency. Default is 0.5.
 #' @param theme_size A numeric scalar indicating the base font size.
 #' Default is 18.
+#' @param show_na  Logical scalar indicating whether to show `NA` values.
+#' Default is `FALSE`.
+#' @param na.value Colour to use for missing values. Default is `"grey50"`.
 #' @param legend_pos The position of legends ("none", "left", "right",
 #' "bottom","top". Use "none" to disable plot legend. Default is "right".
 #' @param legend_just The anchor point for positioning legend inside plot
@@ -952,8 +955,9 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
 #'   feat_desc = "DKD62 Expression", guides_barheight = 15
 #' )
 plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, feat_color = NULL,
-                           color_breaks = waiver(), color_limits = NULL, exprs_by = "logcounts", text_by = NULL,
-                           point_size = 2, point_alpha = 0.5, theme_size = 18,
+                           color_breaks = waiver(), color_limits = NULL, exprs_by = "logcounts",
+                           text_by = NULL, point_size = 2, point_alpha = 0.5, theme_size = 18,
+                           show_na = FALSE, na.value = "grey50",
                            legend_pos = "right", legend_just = "center",
                            guides_ncol = NULL, guides_nrow = NULL,
                            guides_barwidth = NULL, guides_barheight = NULL,
@@ -969,6 +973,15 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
     color <- choosePalette(feature$values, feat_color)
   } else {
     color <- if (is.null(feat_color)) c("blue", "yellow", "red") else feat_color
+  }
+
+  if(!show_na) {
+    if(feature$type == "cell") {
+      to_keep <- !is.na(colData(sce)[, feature$name])
+      sce <- sce[, to_keep]
+      colData(sce) <- droplevels(colData(sce))
+      feature$values <- feature$values[to_keep]
+    }
   }
 
   suppressMessages({
@@ -995,16 +1008,18 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 
     # add color
     if (discrete) {
-      p <- p + scale_color_manual(values = color, breaks = color_breaks) +
+      p <- p + scale_color_manual(values = color, breaks = color_breaks, na.value = na.value) +
         guides(color = guide_legend(
           title = NULL, ncol = guides_ncol, nrow = guides_nrow,
           override.aes = list(size = guides_size, alpha = 1)
         ))
     } else {
-      p <- p + scale_color_gradientn(colours = color, breaks = color_breaks, limits = color_limits, oob = squish) +
+      p <- p + scale_color_gradientn(colours = color, breaks = color_breaks, na.value = na.value,
+				     limits = color_limits, oob = squish) +
         guides(color = guide_colorbar(
           title = NULL, barwidth = guides_barwidth, barheight = guides_barheight,
-          frame.colour = "black", ticks.colour = "black"
+          frame.colour = "black", frame.linewidth = 0.3,
+          ticks.colour = "black", ticks.linewidth = 0.3
         ))
     }
     return(p)
@@ -1076,13 +1091,14 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_desc = NULL,
                             feat_color = NULL, color_breaks = waiver(), color_limits = NULL,
                             exprs_by = "logcounts", text_by = NULL,
-                            point_size = 1, point_alpha = 0.5,
-                            theme_size = 18, legend_pos = "right", legend_just = "center",
+                            point_size = 1, point_alpha = 0.5, theme_size = 18,
+                            show_na = FALSE, na.value = "grey50",
+                            legend_pos = "right", legend_just = "center",
                             guides_ncol = NULL, guides_nrow = NULL,
                             guides_barwidth = NULL, guides_barheight = NULL,
                             guides_size = point_size * 2, titles = NULL, show_title = TRUE,
-                            show_subtitle = TRUE, other_fields = list(), add_void = FALSE,
-                            rel_widths = c(15, 1), rel_heights = c(15, 1), ...) {
+                            show_subtitle = TRUE, other_fields = list(),
+                            add_void = FALSE, rel_widths = c(15, 1), rel_heights = c(15, 1), ...) {
   titles <- if (is.null(titles)) dimnames else titles
   if (length(dimnames) != 2L) abort("Wrong `dimnames` format.")
   if (length(titles) != 2L) abort("Wrong `titles` format.")
@@ -1098,7 +1114,8 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
     guides_ncol = guides_ncol, guides_nrow = guides_nrow,
     guides_barwidth = guides_barwidth, guides_barheight = guides_barheight,
     guides_size = guides_size, title = titles[1], show_title = show_title,
-    show_subtitle = show_subtitle, other_fields = other_fields, ...
+    show_subtitle = show_subtitle, other_fields = other_fields,
+    show_na = show_na, na.value = na.value, ...
   )
 
   p2 <- plotProjection(sce, feature,
@@ -1110,7 +1127,8 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
     guides_ncol = guides_ncol, guides_nrow = guides_nrow,
     guides_barwidth = guides_barwidth, guides_barheight = guides_barheight,
     guides_size = guides_size, title = titles[2], show_title = show_title,
-    show_subtitle = show_subtitle, other_fields = other_fields, ...
+    show_subtitle = show_subtitle, other_fields = other_fields,
+    show_na = show_na, na.value = na.value, ...
   )
 
   if (legend_pos == "none") {
@@ -1132,10 +1150,13 @@ plotProjections <- function(sce, feature, dimnames = c("TSNE", "UMAP"), feat_des
     } else {
       tmp <- p1 + guides(color = guide_colorbar(
         title = NULL, barwidth = guides_barwidth, barheight = guides_barheight,
-        frame.colour = "black", ticks.colour = "black"
+        frame.colour = "black", frame.linewidth = 0.3,
+        ticks.colour = "black", ticks.linewidth = 0.3
       ))
     }
-    legend <- get_Legend(tmp + theme(legend.position = legend_pos, legend.justification = legend_just))
+    legend <- get_Legend(tmp + theme(legend.position = legend_pos, legend.justification = legend_just,
+                                     legend.key.spacing.x = unit(9, "pt"),
+                                     legend.key.spacing.y = unit(0, "pt")))
   }
 
   if (legend_pos == "right") {

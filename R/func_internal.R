@@ -127,8 +127,10 @@
 
   if (length(x) == 1) {
     if (x %in% colnames(colData(sce))) { # cell feature
+      type <- "cell"
       val <- colData(sce)[, x]
     } else if (x %in% rownames(sce)) { # gene expression
+      type <- "gene"
       val <- .check_assayname(sce, exprs_by, return_value = TRUE)
       val <- val[x, ]
     } else {
@@ -137,9 +139,9 @@
   } else {
     if (length(x) != ncol(sce)) abort(sprintf("`feature` and `ncol(%s)` have different lengths.", var))
     val <- x
-    x <- "feature"
+    x <- type <- "feature"
   }
-  list(name = x, values = val)
+  list(name = x, values = val, type = type)
 }
 
 #' @importFrom rlang abort

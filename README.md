@@ -26,6 +26,10 @@ The package is current available only on [GitHub](https://github.com/ycl6/scRUti
 so please use `devtools::install_github` or `remotes::install_github` function to install it.
 
 ``` r
+# 'remotes' package
+remotes::install_github("ycl6/scRUtils")
+
+# 'devtools' package
 devtools::install_github("ycl6/scRUtils")
 ```
 

@@ -26,10 +26,13 @@ The package is current available only on [GitHub](https://github.com/ycl6/scRUti
 so please use `devtools::install_github` or `remotes::install_github` function to install it.
 
 ``` r
-# 'remotes' package
+# First, add Bioconductor repositories to the 'repos' option
+options(repos = BiocManager::repositories())
+
+# Use 'remotes' package to install scRUtils
 remotes::install_github("ycl6/scRUtils")
 
-# 'devtools' package
+# Or, use 'devtools' package to install scRUtils
 devtools::install_github("ycl6/scRUtils")
 ```
 

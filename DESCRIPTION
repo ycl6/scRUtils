@@ -1,7 +1,7 @@
 Package: scRUtils
 Type: Package
 Title: Single-Cell Sequencing Analysis Utilities
-Version: 0.3.8
+Version: 0.3.9
 Authors@R:
     person(
       given = "I-Hsuan",

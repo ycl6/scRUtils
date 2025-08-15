@@ -1008,19 +1008,15 @@ plotProjection <- function(sce, feature, dimname = "TSNE", feat_desc = NULL, fea
 
     # add color
     if (discrete) {
-      p <- p + scale_color_manual(values = color, breaks = color_breaks, na.value = na.value) +
-        guides(color = guide_legend(
-          title = NULL, ncol = guides_ncol, nrow = guides_nrow,
-          override.aes = list(size = guides_size, alpha = 1)
-        ))
+      p <- p + scale_color_manual(values = color, breaks = color_breaks, na.value = na.value, 
+				  guide = guide_legend(title = NULL, ncol = guides_ncol, nrow = guides_nrow, 
+						       override.aes = list(size = guides_size, alpha = 1)))
     } else {
       p <- p + scale_color_gradientn(colours = color, breaks = color_breaks, na.value = na.value,
-				     limits = color_limits, oob = squish) +
-        guides(color = guide_colorbar(
-          title = NULL, barwidth = guides_barwidth, barheight = guides_barheight,
-          frame.colour = "black", frame.linewidth = 0.3,
-          ticks.colour = "black", ticks.linewidth = 0.3
-        ))
+				     limits = color_limits, oob = squish, 
+				     guide = guide_colorbar(title = NULL, barwidth = guides_barwidth, barheight = guides_barheight, 
+							    frame.colour = "black", frame.linewidth = 0.3, 
+							    ticks.colour = "black", ticks.linewidth = 0.3))
     }
     return(p)
   })

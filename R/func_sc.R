@@ -465,7 +465,7 @@ plotVariableFeature <- function(sce, var, hvg = NULL, top_n = 10, point_size = 2
   # Add trend line
   p <- p + stat_function(
     fun = function(x) metadata(var)$trend(x), geom = "line",
-    alpha = 1, color = trend_color, size = trend_size
+    alpha = 1, color = trend_color, linewidth = trend_size
   )
 
   # Add labels
@@ -588,12 +588,12 @@ plotSilhouette <- function(object, clusters, printDiff = TRUE, plot = TRUE,
     sil_aes <- aes(x = .data[["cluster"]], y = .data[["width"]], colour = .data[["closest"]])
     p <- ggplot(sil.data, sil_aes) +
       geom_quasirandom(size = point_size, alpha = point_alpha, shape = point_shape, method = swarm_method) +
-      geom_hline(yintercept = 0, size = 0.5, color = "black") +
+      geom_hline(yintercept = 0, linewidth = 0.5, color = "black") +
       scale_color_manual(values = cluster_color) +
       theme_cowplot(theme_size) +
       ylab("Silhouette width Si")
 
-    p <- if (add_mean) p + geom_hline(yintercept = mean_width, color = mean_color, size = mean_size, linetype = "dashed") else p
+    p <- if (add_mean) p + geom_hline(yintercept = mean_width, color = mean_color, linewidth = mean_size, linetype = "dashed") else p
 
     ncol <- ceiling(length(table(clusters)) / 20) # show 20 clusters in a column
 

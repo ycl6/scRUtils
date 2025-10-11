@@ -56,11 +56,11 @@ plotCyclone <- function(x, phase_color = NULL, point_size = 2, point_alpha = 0.8
   dat <- data.frame(x = x$score$G1, y = x$score$G2M, phases = x$phases, stringsAsFactors = TRUE)
 
   # Set up plot
-  aes <- aes_string(x = "x", y = "y", color = "phases", shape = "phases")
+  phase_aes <- aes(x = .data[["x"]], y = .data[["y"]], color = .data[["phases"]], shape = .data[["phases"]])
   phase_color <- choosePalette(dat$phases, phase_color)
   phase_shape <- setNames(c(0, 2, 8), c("G1", "S", "G2M"))[names(phase_color)]
 
-  p <- ggplot(dat, aes) +
+  p <- ggplot(dat, phase_aes) +
     geom_point(size = point_size, alpha = point_alpha) +
     scale_color_manual(values = phase_color) +
     scale_shape_manual(values = phase_shape) +
@@ -70,9 +70,9 @@ plotCyclone <- function(x, phase_color = NULL, point_size = 2, point_alpha = 0.8
     ) +
     scale_x_continuous(xlab, limits = c(0, 1)) +
     scale_y_continuous(ylab, limits = c(0, 1)) +
-    geom_segment(aes(x = 1 / 2, y = 0, xend = 1 / 2, yend = 1 / 2), size = 0.5, colour = "black", linetype = "dashed") +
-    geom_segment(aes(x = 0, y = 1 / 2, xend = 1 / 2, yend = 1 / 2), size = 0.5, colour = "black", linetype = "dashed") +
-    geom_segment(aes(x = 1 / 2, y = 1 / 2, xend = 1, yend = 1), size = 0.5, colour = "black", linetype = "dashed") +
+    geom_segment(aes(x = 1 / 2, y = 0, xend = 1 / 2, yend = 1 / 2), linewidth = 0.5, colour = "black", linetype = "dashed") +
+    geom_segment(aes(x = 0, y = 1 / 2, xend = 1 / 2, yend = 1 / 2), linewidth = 0.5, colour = "black", linetype = "dashed") +
+    geom_segment(aes(x = 1 / 2, y = 1 / 2, xend = 1, yend = 1), linewidth = 0.5, colour = "black", linetype = "dashed") +
     annotate("label", x = 0.25, y = 0.02, size = text_size, fill = "white", alpha = 0.5, label = "S") +
     annotate("label", x = 0.95, y = 0.50, size = text_size, fill = "white", alpha = 0.5, label = "G1") +
     annotate("label", x = 0.50, y = 0.98, size = text_size, fill = "white", alpha = 0.5, label = "G2/M") +
@@ -151,7 +151,7 @@ plotCyclone <- function(x, phase_color = NULL, point_size = 2, point_alpha = 0.8
 plotExprsFreqVsMean <- function(sce, point_size = 2, point_alpha = 0.8, anno_size = 6,
                                 text_size = 4, text_color = "black", trend_color = "firebrick",
                                 trend_size = 1, trend_se = TRUE, box.padding = 0.5,
-                                max.overlaps = Inf, seed = 12321, xlab = "log2 Mean expression",
+                                max.overlaps = 20, seed = 12321, xlab = "log2 Mean expression",
                                 ylab = "Percentage of expressing cells", title = NULL,
                                 theme_size = 18, ...) {
   .is.sce(sce)
@@ -174,7 +174,7 @@ plotExprsFreqVsMean <- function(sce, point_size = 2, point_alpha = 0.8, anno_siz
     point_alpha = point_alpha, theme_size = theme_size
   ) +
     geom_smooth(
-      data = mn_vs_fq, aes_string(x = "mn", y = "100*fq"),
+      data = mn_vs_fq, aes(x = .data[["mn"]], y = 100*.data[["fq"]]),
       alpha = 1, color = trend_color, size = trend_size, se = trend_se
     ) +
     geom_hline(yintercept = 50, linetype = 2) + # 50% dropout
@@ -190,8 +190,7 @@ plotExprsFreqVsMean <- function(sce, point_size = 2, point_alpha = 0.8, anno_siz
     labs(x = xlab, y = ylab, color = "Dropouts (%)")
 
   # Add labels
-  aes <- aes_string(label = "ifelse(X > quantile(means, 0.999) & Y > quantile(freqs, 0.999), names(sce), '')")
-  p <- p + geom_text_repel(aes,
+  p <- p + geom_text_repel(aes(label = ifelse(X > quantile(means, 0.999) & Y > quantile(freqs, 0.999), names(sce), '')),
     alpha = 1,
     color = text_color, box.padding = box.padding, size = text_size,
     max.overlaps = max.overlaps, seed = seed, min.segment.length = unit(0, "lines"), ...
@@ -267,7 +266,7 @@ plotExprsFreqVsMean <- function(sce, point_size = 2, point_alpha = 0.8, anno_siz
 #' plotVarianceVsMean(sce, title = "logcounts mean-variance plot")
 plotVarianceVsMean <- function(sce, top_n = 5, point_size = 2, point_alpha = 0.8,
                                text_size = 4, text_color = "black",
-                               box.padding = 0.5, max.overlaps = Inf, seed = 12321,
+                               box.padding = 0.5, max.overlaps = 20, seed = 12321,
                                xlab = "Mean log-counts", ylab = "Variance of log-counts",
                                title = NULL, theme_size = 18, ...) {
   .is.sce(sce)
@@ -300,8 +299,7 @@ plotVarianceVsMean <- function(sce, top_n = 5, point_size = 2, point_alpha = 0.8
 
   # Add labels
   sel <- names(head(sort(mean, decreasing = TRUE), top_n))
-  aes_repel <- aes_string(label = 'ifelse(rowname %in% sel, rowname, "")')
-  p <- p + geom_text_repel(aes_repel,
+  p <- p + geom_text_repel(aes(label = ifelse(rowname %in% sel, rowname, "")),
     alpha = 1, color = text_color, box.padding = box.padding, size = text_size,
     max.overlaps = max.overlaps, seed = seed, min.segment.length = unit(0, "lines"), ...
   )
@@ -401,7 +399,7 @@ plotVarianceVsMean <- function(sce, top_n = 5, point_size = 2, point_alpha = 0.8
 plotVariableFeature <- function(sce, var, hvg = NULL, top_n = 10, point_size = 2,
                                 text_size = 4, text_color = "black",
                                 trend_color = "gold", trend_size = 2,
-                                box.padding = 0.5, max.overlaps = Inf, seed = 12321,
+                                box.padding = 0.5, max.overlaps = 20, seed = 12321,
                                 xlab = "Mean log-counts", ylab = "Variance of log-counts",
                                 title = NULL, theme_size = 18, ...) {
   .is.sce(sce)
@@ -430,9 +428,9 @@ plotVariableFeature <- function(sce, var, hvg = NULL, top_n = 10, point_size = 2
   dat$status <- as.factor(dat$status)
 
   # Set up plot
-  aes <- aes_string(x = "mean", y = "total", shape = "status", alpha = "status")
+  hvg_aes <- aes(x = .data[["mean"]], y = .data[["total"]], shape = .data[["status"]], alpha = .data[["status"]])
 
-  p <- ggplot(dat, aes) +
+  p <- ggplot(dat, hvg_aes) +
     theme_cowplot(theme_size) +
     scale_shape_manual(values = setNames(c(4, 1, 16), c("Failed", "Ambient Contamination", "Passed"))) +
     scale_alpha_manual(values = setNames(c(1, 1, 0.4), c("Failed", "Ambient Contamination", "Passed"))) +
@@ -456,7 +454,7 @@ plotVariableFeature <- function(sce, var, hvg = NULL, top_n = 10, point_size = 2
     sel <- head(hvg, top_n)
 
     # Add point
-    p <- p + geom_point(aes_string(color = "HVG"), size = point_size) +
+    p <- p + geom_point(aes(color = .data[["HVG"]]), size = point_size) +
       scale_color_manual(
         labels = paste0(c("Not HVG", "HVG"), ":", table(dat$HVG)),
         values = c("black", "red")
@@ -471,8 +469,7 @@ plotVariableFeature <- function(sce, var, hvg = NULL, top_n = 10, point_size = 2
   )
 
   # Add labels
-  aes_repel <- aes_string(label = 'ifelse(rowname %in% sel, rowname, "")')
-  p <- p + geom_text_repel(aes_repel,
+  p <- p + geom_text_repel(aes(label = ifelse(rowname %in% sel, rowname, "")),
     alpha = 1, color = text_color,
     box.padding = box.padding, size = text_size,
     max.overlaps = max.overlaps, seed = seed, ...
@@ -587,16 +584,16 @@ plotSilhouette <- function(object, clusters, printDiff = TRUE, plot = TRUE,
 
   if (plot) {
     cluster_color <- choosePalette(clusters, cluster_color)
-    mean.width <- mean(sil.data$width)
-    aes <- aes_string(x = "cluster", y = "width", colour = "closest")
-    p <- ggplot(sil.data, aes) +
+    mean_width <- mean(sil.data$width)
+    sil_aes <- aes(x = .data[["cluster"]], y = .data[["width"]], colour = .data[["closest"]])
+    p <- ggplot(sil.data, sil_aes) +
       geom_quasirandom(size = point_size, alpha = point_alpha, shape = point_shape, method = swarm_method) +
       geom_hline(yintercept = 0, size = 0.5, color = "black") +
       scale_color_manual(values = cluster_color) +
       theme_cowplot(theme_size) +
       ylab("Silhouette width Si")
 
-    p <- if (add_mean) p + geom_hline(yintercept = mean.width, color = mean_color, size = mean_size, linetype = "dashed") else p
+    p <- if (add_mean) p + geom_hline(yintercept = mean_width, color = mean_color, size = mean_size, linetype = "dashed") else p
 
     ncol <- ceiling(length(table(clusters)) / 20) # show 20 clusters in a column
 
@@ -706,15 +703,15 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
   cluster_color <- choosePalette(dat$Cluster, cluster_color)
 
   if (qc_plot %in% c(0, 1)) {
-    aes <- aes_string(x = "num.de", y = "median.de", color = "Cluster")
-    p1 <- ggplot(dat, aes) +
+    qc_aes <- aes(x = .data[["num.de"]], y = .data[["median.de"]], color = .data[["Cluster"]])
+    p1 <- ggplot(dat, qc_aes) +
       geom_point(size = point_size) +
       guides(color = guide_legend(override.aes = list(size = point_size * 2, alpha = 1))) +
       scale_color_manual(values = cluster_color) +
       theme_cowplot(theme_size) +
       ggtitle("num.de vs. median.de")
 
-    p1 <- p1 + geom_text_repel(aes_string(label = "Cluster"),
+    p1 <- p1 + geom_text_repel(aes(label = .data[["Cluster"]]),
       size = text_size,
       box.padding = box.padding, point.padding = point.padding,
       max.overlaps = max.overlaps, seed = seed, show.legend = FALSE
@@ -727,8 +724,8 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
   }
 
   if (qc_plot %in% c(0, 2)) {
-    aes <- aes_string(x = "Cluster", y = "prop", fill = "Cluster")
-    p2 <- ggplot(dat, aes) +
+    qc_aes <- aes(x = .data[["Cluster"]], y = .data[["prop"]], fill = .data[["Cluster"]])
+    p2 <- ggplot(dat, qc_aes) +
       geom_col(size = 1, width = 0.8) +
       scale_fill_manual(values = cluster_color) +
       theme_cowplot(theme_size) +
@@ -741,8 +738,8 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
   }
 
   if (qc_plot %in% c(0, 3)) {
-    aes <- aes_string(x = "lib.size1", y = "lib.size2", color = "Cluster")
-    p3 <- ggplot(dat, aes) +
+    qc_aes <- aes(x = .data[["lib.size1"]], y = .data[["lib.size2"]], color = .data[["Cluster"]])
+    p3 <- ggplot(dat, qc_aes) +
       geom_point(size = point_size) +
       guides(color = guide_legend(override.aes = list(size = point_size * 2, alpha = 1))) +
       xlim(0, max(c(dbl$lib.size1, dbl$lib.size2))) +
@@ -751,7 +748,7 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
       theme_cowplot(theme_size) +
       ggtitle("lib.size1 vs. lib.size2")
 
-    p3 <- p3 + geom_text_repel(aes_string(label = "Cluster"),
+    p3 <- p3 + geom_text_repel(aes(label = .data[["Cluster"]]),
       size = text_size,
       box.padding = box.padding, point.padding = point.padding,
       max.overlaps = max.overlaps, seed = seed, show.legend = FALSE
@@ -810,7 +807,7 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
 #' @importFrom stats median
 #' @importFrom ggrepel geom_label_repel
 #' @importFrom ggrepel geom_text_repel
-#' @importFrom ggplot2 aes_string
+#' @importFrom ggplot2 aes
 #' @examples
 #' library(scater)
 #'
@@ -842,14 +839,14 @@ add_label <- function(sce, dimname = "TSNE", text_by = "label", text_type = "tex
   if (text_type == "label") {
     geom_label_repel(
       data = data.frame(x = by_text_x, y = by_text_y, label = names(by_text_x)),
-      mapping = aes_string(x = "x", y = "y", label = "label"),
+      mapping = aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
       inherit.aes = FALSE, size = text_size, colour = text_color,
       max.overlaps = max.overlaps, force = 0
     )
   } else {
     geom_text_repel(
       data = data.frame(x = by_text_x, y = by_text_y, label = names(by_text_x)),
-      mapping = aes_string(x = "x", y = "y", label = "label"),
+      mapping = aes(x = .data[["x"]], y = .data[["y"]], label = .data[["label"]]),
       inherit.aes = FALSE, size = text_size, colour = text_color,
       max.overlaps = max.overlaps, force = 0
     )
@@ -1309,11 +1306,11 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
   }
 
   # Set up plot
-  p <- ggplot(data = dat, mapping = aes_string(x = "X", y = "Y"))
+  p <- ggplot(data = dat, mapping = aes(x = .data[["X"]], y = .data[["Y"]]))
   title <- paste(lr_pair, collapse = lr_sep)
 
   if (oneplot) {
-    p <- p + geom_point(aes_string(color = "L"), shape = point_shape[1], size = point_size, alpha = point_alpha) +
+    p <- p + geom_point(aes(color = .data[["L"]]), shape = point_shape[1], size = point_size, alpha = point_alpha) +
       scale_colour_gradientn(label1,
         colours = c(low_color, lr_color[1]), limits = limits1, oob = squish,
         guide = guide_colorbar(
@@ -1322,7 +1319,7 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
         )
       ) +
       new_scale_colour() +
-      geom_point(aes_string(color = "R"), shape = point_shape[2], size = point_size, alpha = point_alpha) +
+      geom_point(aes(color = .data[["R"]]), shape = point_shape[2], size = point_size, alpha = point_alpha) +
       scale_colour_gradientn(label2,
         colours = c(low_color, lr_color[2]), limits = limits2, oob = squish,
         guide = guide_colorbar(
@@ -1338,7 +1335,7 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
     # Return a single plot
     if (!is.null(text_by)) p + add_label(sce, dimname, text_by = text_by, ...) else p
   } else {
-    p1 <- p + geom_point(aes_string(color = "L"), shape = point_shape[1], size = point_size, alpha = point_alpha) +
+    p1 <- p + geom_point(aes(color = .data[["L"]]), shape = point_shape[1], size = point_size, alpha = point_alpha) +
       scale_colour_gradientn(label1,
         colours = c(low_color, lr_color[1]), limits = limits1, oob = squish,
         guide = guide_colorbar(
@@ -1348,7 +1345,7 @@ plotReducedDimLR <- function(sce, dimname = "TSNE", lr_pair, lr_desc = c("Ligand
       ) +
       theme_cowplot(theme_size) + labs(x = paste(dimname, "1"), y = paste(dimname, "2"))
 
-    p2 <- p + geom_point(aes_string(color = "R"), shape = point_shape[2], size = point_size, alpha = point_alpha) +
+    p2 <- p + geom_point(aes(color = .data[["R"]]), shape = point_shape[2], size = point_size, alpha = point_alpha) +
       scale_colour_gradientn(label2,
         colours = c(low_color, lr_color[2]), limits = limits2, oob = squish,
         guide = guide_colorbar(
@@ -1575,8 +1572,8 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
   levels(df$Group) <- paste0(freq$Var1, " (", freq$Freq, ")")
 
   # Create plot
-  my.aes <- if (color_by == "Detected") aes_string(x = "Group", y = "Expression", color = "Detected", fill = "Detected")
-          else aes_string(x = "Group", y = "Expression", color = "Group", fill = "Group")
+  my.aes <- if (color_by == "Detected") aes(x = .data[["Group"]], y = .data[["Expression"]], color = .data[["Detected"]], fill = .data[["Detected"]])
+          else aes(x = .data[["Group"]], y = .data[["Expression"]], color = .data[["Group"]], fill = .data[["Group"]])
 
   p <- ggplot(df, my.aes) + geom_boxplot(outlier.size = 0.5, alpha = 0.3) +
           ylab(exprs_by) + theme_cowplot(theme_size)

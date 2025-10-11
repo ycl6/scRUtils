@@ -12,7 +12,7 @@ plotVarianceVsMean(
   text_size = 4,
   text_color = "black",
   box.padding = 0.5,
-  max.overlaps = Inf,
+  max.overlaps = 20,
   seed = 12321,
   xlab = "Mean log-counts",
   ylab = "Variance of log-counts",

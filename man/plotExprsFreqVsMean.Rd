@@ -15,7 +15,7 @@ plotExprsFreqVsMean(
   trend_size = 1,
   trend_se = TRUE,
   box.padding = 0.5,
-  max.overlaps = Inf,
+  max.overlaps = 20,
   seed = 12321,
   xlab = "log2 Mean expression",
   ylab = "Percentage of expressing cells",

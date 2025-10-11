@@ -15,7 +15,7 @@ plotVariableFeature(
   trend_color = "gold",
   trend_size = 2,
   box.padding = 0.5,
-  max.overlaps = Inf,
+  max.overlaps = 20,
   seed = 12321,
   xlab = "Mean log-counts",
   ylab = "Variance of log-counts",

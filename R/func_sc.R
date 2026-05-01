@@ -175,7 +175,7 @@ plotExprsFreqVsMean <- function(sce, point_size = 2, point_alpha = 0.8, anno_siz
   ) +
     geom_smooth(
       data = mn_vs_fq, aes(x = .data[["mn"]], y = 100*.data[["fq"]]),
-      alpha = 1, color = trend_color, size = trend_size, se = trend_se
+      alpha = 1, color = trend_color, linewidth = trend_size, se = trend_se
     ) +
     geom_hline(yintercept = 50, linetype = 2) + # 50% dropout
     scale_y_continuous(limits = c(0, 110), breaks = c(seq(0, 100, by = 25))) +
@@ -290,7 +290,7 @@ plotVarianceVsMean <- function(sce, top_n = 5, point_size = 2, point_alpha = 0.8
     p <- plotRowData(sce,
       x = data.frame("X" = mean, check.names = FALSE),
       y = data.frame("Y" = variance, check.names = FALSE),
-      point_size, point_alpha = point_alpha, theme_size = theme_size,
+      point_size = point_size, point_alpha = point_alpha, theme_size = theme_size,
       other_fields = "rowname"
     )
   }
@@ -726,7 +726,7 @@ plotqcDoubletClusters <- function(dbl, clusters = NULL, cluster_color = NULL, qc
   if (qc_plot %in% c(0, 2)) {
     qc_aes <- aes(x = .data[["Cluster"]], y = .data[["prop"]], fill = .data[["Cluster"]])
     p2 <- ggplot(dat, qc_aes) +
-      geom_col(size = 1, width = 0.8) +
+      geom_col(linewidth = 1, width = 0.8) +
       scale_fill_manual(values = cluster_color) +
       theme_cowplot(theme_size) +
       ggtitle("proportion of cells")

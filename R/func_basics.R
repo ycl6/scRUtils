@@ -418,14 +418,14 @@ plotParallel <- function(lab1, lab2, labels = c("label1", "label2"), color = NUL
     )
 
   # Build ggplot object
-  aes <- aes_string(x = "x", id = "id", split = "y", value = "n")
-  aes_sets <- aes_string(fill = "lab1")
-  aes_axes <- aes_string(fill = "y")
-  aes_text <- aes_string(y = "n", split = "y")
+  aes <- aes(x = x, id = id, split = y, value = n)
+  aes_sets <- aes(fill = lab1)
+  aes_axes <- aes(fill = y)
+  aes_text <- aes(y = n, split = y)
 
   p <- ggplot(data, aes) +
     geom_parallel_sets(aes_sets, alpha = 0.6, axis.width = 0.15) + # edge
-    geom_parallel_sets_axes(aes_axes, size = 0.3, axis.width = 0.1) + # annotation
+    geom_parallel_sets_axes(aes_axes, linewidth = 0.3, axis.width = 0.1) + # annotation
     geom_parallel_sets_labs(aes_text,
       hjust = data_labels$hjust, nudge_x = data_labels$nudge_x,
       fontface = "bold", color = "black", size = text_size

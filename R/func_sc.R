@@ -1511,7 +1511,7 @@ plotBox <- function(sce, features, columns = NULL, group_by = NULL, color_by = "
 
   # Create expr data.frame
   mat <- assay(new, exprs_by)
-  if(class(mat) == "dgCMatrix") mat <- as.matrix(mat)
+  if("dgCMatrix" %in% class(mat)) mat <- as.matrix(mat)
   expr <- as.data.frame(t(mat))
 
   # Create coldata data.frame

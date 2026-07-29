@@ -34,8 +34,12 @@ in the terms' descriptions. Default is 50.}
 y-axis. It can be \code{"Count"} and \code{"Ratio"}. Default is "Count".}
 
 \item{order_by}{A string indicating how to order the Enrichr terms before
-selecting the first \code{showTerms} terms to plot. It can be \code{"P.value"} or
-\code{"Combined.Score"}. Default is "P.value".}
+selecting the first \code{showTerms} terms to plot. It can be one of these:
+\itemize{
+\item \code{"P.value"}. The default.
+\item \code{"Adjusted.P.value"} (or \code{"FDR"})
+\item \code{"Combined.Score"} (or \code{"Score"})
+}}
 
 \item{theme_size}{A numeric scalar indicating the base font size.
 Default is 16.}

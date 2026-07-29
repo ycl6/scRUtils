@@ -96,7 +96,7 @@ data(sce)
 plotExprsFreqVsMean(sce, title = "Expression frequency vs. mean expression level")
 }
 \seealso{
-\code{\link[scater:plotRowData]{scater::plotRowData()}}, \code{\link[scuttle:addPerCellQCMetrics]{scuttle::addPerFeatureQCMetrics()}},
+\code{\link[scater:plotRowData]{scater::plotRowData()}}, \code{\link[scuttle:addPerFeatureQCMetrics]{scuttle::addPerFeatureQCMetrics()}},
 \code{\link[scuttle:perFeatureQCMetrics]{scuttle::perFeatureQCMetrics()}}, \code{\link[ggrepel:geom_text_repel]{ggrepel::geom_text_repel()}}
 }
 \author{

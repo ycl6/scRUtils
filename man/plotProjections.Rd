@@ -123,7 +123,7 @@ subtitle, Default is \code{TRUE}.}
 DataFrame. Default is \code{list()}.}
 
 \item{add_void}{Logical scalar indicating whether to add a completely empty
-theme using \code{\link[ggplot2:ggtheme]{ggplot2::theme_void()}} in place of the legend. This is
+theme using \code{\link[ggplot2:theme_void]{ggplot2::theme_void()}} in place of the legend. This is
 applicable when \code{legend_pos = "none"}. The empty theme is added to the
 right of the main plot using \code{plot_grid} Default is \code{FALSE}.}
 

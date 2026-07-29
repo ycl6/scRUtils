@@ -99,7 +99,7 @@ ggplot(data, aes(x, id = id, split = y, value = Freq)) +
   geom_parallel_sets_labs(colour = "red", angle = 0, nudge_x = 0.1, hjust = 0)
 }
 \seealso{
-\code{\link[ggforce:geom_parallel_sets]{ggforce::geom_parallel_sets_labels()}}, \code{\link[ggplot2:layer]{ggplot2::layer()}}
+\code{\link[ggforce:geom_parallel_sets_labels]{ggforce::geom_parallel_sets_labels()}}, \code{\link[ggplot2:layer]{ggplot2::layer()}}
 }
 \author{
 I-Hsuan Lin

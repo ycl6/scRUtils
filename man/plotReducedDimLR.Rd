@@ -121,7 +121,7 @@ plotReducedDimLR(sce, "TSNE", c("OOX46", "BFP78"),
 )
 }
 \seealso{
-\code{\link[scater:plotReducedDim]{scater::plotReducedDim()}}, \code{\link[ggnewscale:new_scale]{ggnewscale::new_scale_colour()}}
+\code{\link[scater:plotReducedDim]{scater::plotReducedDim()}}, \code{\link[ggnewscale:new_scale_colour]{ggnewscale::new_scale_colour()}}
 }
 \author{
 I-Hsuan Lin

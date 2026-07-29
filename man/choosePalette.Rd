@@ -42,7 +42,7 @@ feat
 choosePalette(feat, rainbow(10))
 }
 \seealso{
-\code{\link[=c30]{c30()}}, \code{\link[=c40]{c40()}}, \code{\link[grDevices:palettes]{grDevices::rainbow()}}
+\code{\link[=c30]{c30()}}, \code{\link[=c40]{c40()}}, \code{\link[grDevices:rainbow]{grDevices::rainbow()}}
 }
 \author{
 I-Hsuan Lin

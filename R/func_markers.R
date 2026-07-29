@@ -587,8 +587,12 @@ runEnrichR <- function(object, dbs, site = "Enrichr", direction = "both", fdr = 
 #' @param y A string indicating the variable that should be mapped to the
 #' y-axis. It can be `"Count"` and `"Ratio"`. Default is "Count".
 #' @param order_by A string indicating how to order the Enrichr terms before
-#' selecting the first `showTerms` terms to plot. It can be `"P.value"` or
-#' `"Combined.Score"`. Default is "P.value".
+#' selecting the first `showTerms` terms to plot. It can be one of these:
+#' \itemize{
+#' \item \code{"P.value"}. The default.
+#' \item \code{"Adjusted.P.value"} (or \code{"FDR"})
+#' \item \code{"Combined.Score"} (or \code{"Score"})
+#' }
 #' @param theme_size A numeric scalar indicating the base font size.
 #' Default is 16.
 #' @param prefix A string indicating the prefix of output file. When
